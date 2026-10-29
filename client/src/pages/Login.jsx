@@ -1,0 +1,145 @@
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, Loader2, Lock, Mail, AlertCircle, Coins, LogIn, KeyRound } from 'lucide-react';
+import { useAuth } from '../context/AuthContext.jsx';
+
+const Login = () => {
+  const { loginMember } = useAuth();
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const validate = () => {
+    const next = {};
+    if (!form.email) next.email = 'Email is required';
+    else if (!/^\S+@\S+\.\S+$/.test(form.email)) next.email = 'Enter a valid email address';
+    if (!form.password) next.password = 'Password is required';
+    return next;
+  };
+
+  const handleChange = (e) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setErrors((prev) => ({ ...prev, [e.target.name]: '' }));
+    setServerError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const validation = validate();
+    setErrors(validation);
+    if (Object.keys(validation).length > 0) return;
+
+    setSubmitting(true);
+    try {
+      await loginMember(form.email, form.password);
+      navigate('/dashboard', { replace: true });
+    } catch (error) {
+      setServerError(error.response?.data?.message || 'Unable to sign in. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const field = (invalid) =>
+    `w-full rounded-lg border bg-slate-950/70 py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-500 outline-none transition focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20 ${
+      invalid ? 'border-red-500/60' : 'border-slate-700/80'
+    }`;
+
+  return (
+    <div className="relative flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12">
+      <div className="pointer-events-none absolute left-1/2 top-1/3 h-72 w-72 -translate-x-1/2 rounded-full bg-cyan-500/20 blur-[120px]" />
+      <div className="pointer-events-none absolute right-12 bottom-8 h-56 w-56 rounded-full bg-indigo-600/20 blur-[100px]" />
+
+      <div className="w-full max-w-md">
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-400/30 bg-slate-900 shadow-[0_0_30px_rgba(34,211,238,0.25)]">
+            <Coins className="h-7 w-7 text-cyan-400" />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-white">
+            QNDX <span className="text-cyan-400">Staking</span>
+          </h1>
+          <p className="mt-1 text-sm text-slate-400">Sign in to your member dashboard</p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl backdrop-blur-sm sm:p-8">
+          {serverError && (
+            <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span className="text-sm">{serverError}</span>
+              </div>
+              {serverError.toLowerCase().includes('verify') && (
+                <Link
+                  to={`/verify-email?email=${encodeURIComponent(form.email)}`}
+                  className="mt-2 ml-7 inline-flex items-center gap-1.5 text-xs font-medium text-cyan-400 hover:text-cyan-300"
+                >
+                  <KeyRound className="h-3.5 w-3.5" />
+                  Open verification page
+                </Link>
+              )}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} noValidate className="space-y-5">
+            <div>
+              <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-300">Email</label>
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                <input id="email" name="email" type="email" autoComplete="email" placeholder="you@example.com" value={form.email} onChange={handleChange} className={field(errors.email)} />
+              </div>
+              {errors.email && <p className="mt-1.5 text-xs text-red-400">{errors.email}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-slate-300">Password</label>
+              <div className="relative">
+                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                <input id="password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="••••••••" value={form.password} onChange={handleChange} className={`${field(errors.password)} pr-10`} />
+                <button type="button" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 transition hover:text-slate-300">
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {errors.password && <p className="mt-1.5 text-xs text-red-400">{errors.password}</p>}
+            </div>
+
+            <button type="submit" disabled={submitting} className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-500 py-2.5 text-sm font-semibold text-slate-950 transition hover:shadow-[0_0_25px_rgba(34,211,238,0.35)] disabled:cursor-not-allowed disabled:opacity-60">
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  <LogIn className="h-4 w-4" />
+                  Sign In
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 flex items-center gap-3 text-xs text-slate-500">
+            <div className="h-px flex-1 bg-slate-800" />
+            <span>new to qndx?</span>
+            <div className="h-px flex-1 bg-slate-800" />
+          </div>
+
+          <p className="mt-5 text-center text-sm text-slate-400">
+            Don&apos;t have an account?{' '}
+            <Link to="/register" className="font-medium text-cyan-400 hover:text-cyan-300">
+              Register with sponsor ID
+            </Link>
+          </p>
+          <p className="mt-2 text-center text-xs text-slate-600">
+            Admin? <Link to="/admin/login" className="text-slate-400 hover:text-cyan-400">Admin portal</Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
