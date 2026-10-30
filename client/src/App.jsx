@@ -17,6 +17,9 @@ import Deposit from './pages/Deposit.jsx';
 import WithdrawPage from './pages/WithdrawPage.jsx';
 import StakingPage from './pages/StakingPage.jsx';
 import ReferralsPage from './pages/Referrals.jsx';
+import LandingPage from './pages/LandingPage.jsx';
+import IncomeLedger from './pages/IncomeLedger.jsx';
+import SupportTickets from './pages/SupportTickets.jsx';
 
 const Gate = () => {
   const { user, isLoading } = useAuth();
@@ -27,6 +30,7 @@ const Gate = () => {
 export default function App() {
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
@@ -44,8 +48,11 @@ export default function App() {
           <Route path="/dashboard/deposit" element={<Deposit />} />
           <Route path="/dashboard/withdraw" element={<WithdrawPage />} />
           <Route path="/dashboard/staking" element={<StakingPage />} />
+          <Route path="/dashboard/income-ledger" element={<IncomeLedger />} />
+          <Route path="/dashboard/income-ledger/:category" element={<IncomeLedger />} />
           <Route path="/dashboard/referrals" element={<ReferralsPage />} />
           <Route path="/dashboard/team" element={<ReferralsPage />} />
+          <Route path="/dashboard/support" element={<SupportTickets />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
       </Route>

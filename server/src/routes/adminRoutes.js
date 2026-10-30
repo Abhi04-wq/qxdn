@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getReferralLink, getPlatformOverview, getAllStakes, getMemberDetail, getMemberTree, getReleaseLogs } from '../controllers/adminController.js';
+import { getReferralLink, getPlatformOverview, getAllStakes, getMemberDetail, getMemberTree, getReleaseLogs, getAdminIncomeLedger } from '../controllers/adminController.js';
 import { getAdminWithdrawals, processWithdrawalRequest } from '../controllers/adminWithdrawalController.js';
 import { protect, requireAdmin } from '../middleware/authMiddleware.js';
 
@@ -12,6 +12,7 @@ router.get('/admin', (_req, res) => {
 router.get('/admin/referral-link', getReferralLink);
 router.get('/admin/overview', getPlatformOverview);
 router.get('/admin/all-stakes', getAllStakes);
+router.get('/admin/income-ledger', getAdminIncomeLedger);
 router.get('/admin/member/:userId', getMemberDetail);
 router.get('/admin/member-tree/:userId', getMemberTree);
 router.get('/admin/release-logs', getReleaseLogs);

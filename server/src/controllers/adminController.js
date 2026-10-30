@@ -283,3 +283,110 @@ export const getReleaseLogs = async (req, res, next) => {
     next(error);
   }
 };
+
+// @route   GET /api/admin/income-ledger
+// @desc    Platform-wide income ledger with category summaries & member-specific filtering
+export const getAdminIncomeLedger = async (req, res, next) => {
+  try {
+    const limit = Math.min(Number(req.query.limit) || 500, 1000);
+    const { category, currency, status, userSearch } = req.query;
+
+    const filter = {};
+    if (currency && currency !== 'ALL') filter.currency = currency;
+    if (status && status !== 'ALL') filter.status = status;
+
+    if (category === 'staking') {
+      filter.type = 'STAKING_DAILY_ACCRUAL';
+    } else if (category === 'referral') {
+      filter.type = 'REFERRAL_BONUS';
+    } else if (category === 'promotional') {
+      filter.type = 'PROMOTIONAL_REWARD';
+    } else if (category === 'unlocks') {
+      filter.type = 'STAKE_UNLOCK';
+    } else if (!category || category === 'all' || category === 'income') {
+      filter.type = { $in: ['STAKING_DAILY_ACCRUAL', 'REFERRAL_BONUS', 'PROMOTIONAL_REWARD', 'STAKE_UNLOCK'] };
+    }
+
+    if (userSearch && userSearch.trim()) {
+      const matchedUsers = await User.find({
+        $or: [
+          { email: { $regex: userSearch.trim(), $options: 'i' } },
+          { referralCode: { $regex: userSearch.trim(), $options: 'i' } },
+        ],
+      }).select('_id');
+      const uids = matchedUsers.map((u) => u._id);
+      filter.userId = { $in: uids };
+    }
+
+    const [entries, users, aggRows] = await Promise.all([
+      Ledger.find(filter)
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean(),
+      User.find({}).select('email referralCode role isEmailVerified').lean(),
+      Ledger.aggregate([
+        {
+          $match: {
+            type: { $in: ['STAKING_DAILY_ACCRUAL', 'REFERRAL_BONUS', 'PROMOTIONAL_REWARD', 'STAKE_UNLOCK'] },
+          },
+        },
+        {
+          $group: {
+            _id: { type: '$type', status: '$status', currency: '$currency' },
+            totalAmount: { $sum: '$amount' },
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+    ]);
+
+    const userMap = new Map(users.map((u) => [String(u._id), u]));
+    const ledgerWithUsers = entries.map((e) => ({
+      ...e,
+      user: userMap.get(String(e.userId)) || { email: '(unknown)', referralCode: '-' },
+    }));
+
+    // Aggregate summary numbers
+    let stakingTotal = 0;
+    let referralTotal = 0;
+    let unlocksTotal = 0;
+    let pendingSaturdayTotal = 0;
+    let confirmedTotal = 0;
+    const promoTotals = { SHIB: 0, VET: 0, WILD: 0, DOGE: 0, USDT: 0 };
+
+    aggRows.forEach((r) => {
+      const { type, status: stat, currency: curr } = r._id;
+      if (type === 'STAKING_DAILY_ACCRUAL') stakingTotal += r.totalAmount;
+      if (type === 'REFERRAL_BONUS') referralTotal += r.totalAmount;
+      if (type === 'STAKE_UNLOCK') unlocksTotal += r.totalAmount;
+      if (type === 'PROMOTIONAL_REWARD') {
+        promoTotals[curr] = (promoTotals[curr] || 0) + r.totalAmount;
+      }
+      if (stat === 'pending' && (type === 'STAKING_DAILY_ACCRUAL' || type === 'REFERRAL_BONUS')) {
+        pendingSaturdayTotal += r.totalAmount;
+      }
+      if (stat === 'confirmed' && (!curr || curr === 'USDT')) {
+        confirmedTotal += r.totalAmount;
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        ledger: ledgerWithUsers,
+        summary: {
+          stakingTotal: round(stakingTotal),
+          referralTotal: round(referralTotal),
+          unlocksTotal: round(unlocksTotal),
+          pendingSaturdayTotal: round(pendingSaturdayTotal),
+          confirmedTotal: round(confirmedTotal),
+          totalIncome: round(stakingTotal + referralTotal + unlocksTotal),
+          promoTotals,
+          count: entries.length,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};

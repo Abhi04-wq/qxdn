@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 const DashboardLoginLink = () => (
   <Link
     to={typeof window !== 'undefined' && localStorage.getItem('qndx_user')?.includes('admin') ? '/admin/login' : '/login'}
-    className="rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-300 transition hover:border-cyan-400/40 hover:text-cyan-400"
+    className="rounded-xl border border-[#1E493B] bg-[#10352C] px-4 py-2 text-sm font-semibold text-[#ECFDF5] transition hover:border-[#34D399] hover:text-[#34D399] hover:bg-[#164B3A]"
   >
     Go to sign in
   </Link>

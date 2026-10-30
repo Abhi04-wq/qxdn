@@ -239,62 +239,62 @@ const WithdrawPage = () => {
   };
 
   return (
-    <div className="text-slate-200">
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="text-[#ECFDF5]">
+      <main className="w-full px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-cyan-400/30 bg-cyan-400/10 text-cyan-300">
+            <h2 className="text-2xl font-bold tracking-tight text-[#ECFDF5] flex items-center gap-2.5">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#34D399]/30 bg-[#164B3A] text-[#34D399]">
                 <ArrowUpRight className="h-5 w-5" />
               </span>
               Withdraw Funds (USDT)
             </h2>
-            <p className="mt-1 text-sm text-slate-400">
+            <p className="mt-1 text-sm text-[#91A89E]">
               Two-factor OTP verified payouts with tiered instant & manual on-chain execution
             </p>
           </div>
           <button
             onClick={() => { setLoading(true); loadData(); }}
-            className="flex items-center gap-2 self-start rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2 text-xs font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
+            className="flex items-center gap-2 self-start rounded-xl border border-[#1E493B] bg-[#10352C] px-3.5 py-2 text-xs font-medium text-[#A7C4B8] transition hover:bg-[#164B3A] hover:text-[#ECFDF5]"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin text-[#34D399]' : ''}`} />
             Refresh
           </button>
         </div>
 
         {/* Top Summary Banner */}
-        <section className="mb-8 overflow-hidden rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-slate-900 via-slate-900 to-cyan-950/40 p-6 shadow-[0_0_35px_-5px_rgba(34,211,238,0.15)]">
+        <section className="mb-8 overflow-hidden rounded-2xl border border-[#D4AF37]/35 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] p-6 shadow-card-gold transition-all duration-300 hover:border-[#D4AF37]/60">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <Wallet className="h-4 w-4 text-cyan-400" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400">
+                <Wallet className="h-4 w-4 text-[#34D399]" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#34D399]">
                   Confirmed Available Withdrawable Balance
                 </span>
               </div>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-3xl font-extrabold text-white sm:text-4xl">
+                <span className="text-3xl font-extrabold text-[#ECFDF5] sm:text-4xl">
                   {balances ? fmt(balances.availableBalance) : '0.00'}
                 </span>
-                <span className="text-lg font-bold text-cyan-400">USDT</span>
+                <span className="text-lg font-bold text-[#34D399]">USDT</span>
               </div>
-              <p className="mt-2 text-xs text-slate-400">
+              <p className="mt-2 text-xs text-[#91A89E]">
                 * Available balance strictly comprises confirmed deposits and Saturday released rewards minus active locks and withdrawals.
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-700/60 bg-slate-950/70 p-4 md:max-w-xs">
+            <div className="rounded-xl border border-[#1E493B] bg-[#071C18]/80 p-4 md:max-w-xs">
               <div className="flex items-start gap-2.5">
-                <Info className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
-                <div className="text-xs text-slate-300 leading-relaxed">
-                  <p className="font-semibold text-amber-300">Platform Policies</p>
+                <Info className="h-4 w-4 shrink-0 text-[#F1D78A] mt-0.5" />
+                <div className="text-xs text-[#A7C4B8] leading-relaxed">
+                  <p className="font-semibold text-[#F1D78A]">Platform Policies</p>
                   <p className="mt-1">
-                    Min withdrawal: <span className="font-semibold text-white">20 USDT</span> | Fee: <span className="font-semibold text-white">5%</span>
+                    Min withdrawal: <span className="font-semibold text-[#ECFDF5]">20 USDT</span> | Fee: <span className="font-semibold text-[#ECFDF5]">5%</span>
                   </p>
-                  <p className="mt-1 text-[11px] text-slate-400">
-                    • <span className="text-emerald-400 font-semibold">&lt; 300 USDT:</span> Instant Auto-Payout via OTP<br />
-                    • <span className="text-amber-400 font-semibold">&ge; 300 USDT:</span> OTP + Admin Manual Review
+                  <p className="mt-1 text-[11px] text-[#91A89E]">
+                    • <span className="text-[#34D399] font-semibold">&lt; 300 USDT:</span> Instant Auto-Payout via OTP<br />
+                    • <span className="text-[#F1D78A] font-semibold">&ge; 300 USDT:</span> OTP + Admin Manual Review
                   </p>
                 </div>
               </div>
@@ -303,11 +303,11 @@ const WithdrawPage = () => {
         </section>
 
         {/* Interactive Withdrawal Form Card */}
-        <section className="mb-10 rounded-2xl border border-slate-800 bg-slate-900 p-6 sm:p-8">
-          <div className="mb-6 border-b border-slate-800 pb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <section className="mb-10 rounded-2xl border border-[#D4AF37]/35 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] p-6 sm:p-8 shadow-card-gold transition-all duration-300 hover:border-[#D4AF37]/60">
+          <div className="mb-6 border-b border-[#1E493B] pb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-white">Request Payout</h3>
-              <p className="mt-1 text-xs text-slate-500">
+              <h3 className="text-lg font-semibold text-[#ECFDF5]">Request Payout</h3>
+              <p className="mt-1 text-xs text-[#91A89E]">
                 Step 1 of 2: Enter amount and destination wallet to receive a 6-digit email authorization code
               </p>
             </div>
@@ -317,21 +317,21 @@ const WithdrawPage = () => {
           {grossNum >= 20 && (
             <div className="mb-6">
               {isInstant ? (
-                <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.12)]">
-                  <Zap className="h-5 w-5 shrink-0 text-emerald-400" />
+                <div className="flex items-center gap-3 rounded-xl border border-[#34D399]/30 bg-[#34D399]/10 p-4 text-xs text-[#ECFDF5] shadow-[0_0_20px_rgba(52,211,153,0.12)]">
+                  <Zap className="h-5 w-5 shrink-0 text-[#34D399]" />
                   <div>
-                    <p className="font-bold text-emerald-300">⚡ Instant Payout via OTP Verification</p>
-                    <p className="mt-0.5 text-[11px] text-emerald-200/80">
+                    <p className="font-bold text-[#34D399]">⚡ Instant Payout via OTP Verification</p>
+                    <p className="mt-0.5 text-[11px] text-[#A7C4B8]">
                       Amount is under 300 USDT. Upon entering the 6-digit code sent to your email, funds will be broadcast to the blockchain instantly without waiting for admin approval.
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.12)]">
-                  <ShieldCheck className="h-5 w-5 shrink-0 text-amber-400" />
+                <div className="flex items-center gap-3 rounded-xl border border-[#D4AF37]/35 bg-[#D4AF37]/10 p-4 text-xs text-[#F1D78A] shadow-[0_0_20px_rgba(212,175,55,0.12)]">
+                  <ShieldCheck className="h-5 w-5 shrink-0 text-[#F1D78A]" />
                   <div>
-                    <p className="font-bold text-amber-300">🛡️ Requires OTP + Admin Manual Review</p>
-                    <p className="mt-0.5 text-[11px] text-amber-200/80">
+                    <p className="font-bold text-[#F1D78A]">🛡️ Requires OTP + Admin Manual Review</p>
+                    <p className="mt-0.5 text-[11px] text-[#F1D78A]/85">
                       Amount is 300 USDT or higher. After OTP verification, your request is submitted to our compliance desk for expedited manual review.
                     </p>
                   </div>
@@ -346,11 +346,11 @@ const WithdrawPage = () => {
               {/* Amount Input */}
               <div>
                 <div className="flex items-center justify-between">
-                  <label htmlFor="withdraw-amount" className="text-xs font-medium uppercase tracking-wider text-slate-400">
+                  <label htmlFor="withdraw-amount" className="text-xs font-medium uppercase tracking-wider text-[#91A89E]">
                     Amount (USDT)
                   </label>
-                  <span className="text-xs text-slate-400">
-                    Available: <span className="font-medium text-cyan-300">{fmt(availableBalance)} USDT</span>
+                  <span className="text-xs text-[#91A89E]">
+                    Available: <span className="font-semibold text-[#34D399]">{fmt(availableBalance)} USDT</span>
                   </span>
                 </div>
 
@@ -364,16 +364,16 @@ const WithdrawPage = () => {
                     placeholder="0.00"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-lg font-bold text-white placeholder-slate-600 outline-none transition focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50"
+                    className="w-full rounded-xl border border-[#1E493B] bg-[#0B2720] px-4 py-3 text-lg font-bold text-[#ECFDF5] placeholder-[#91A89E] outline-none transition focus:border-[#34D399] focus:ring-1 focus:ring-[#34D399]"
                   />
-                  <div className="absolute inset-y-0 right-3 flex items-center gap-1.5 text-xs font-semibold text-slate-400">
+                  <div className="absolute inset-y-0 right-3 flex items-center gap-1.5 text-xs font-semibold text-[#91A89E]">
                     <span>USDT</span>
                   </div>
                 </div>
 
                 {/* Quick percentage buttons */}
                 <div className="mt-2.5 flex items-center gap-2">
-                  <span className="text-[11px] font-medium text-slate-500">Quick select:</span>
+                  <span className="text-[11px] font-medium text-[#91A89E]">Quick select:</span>
                   {[
                     { label: '25%', value: 0.25 },
                     { label: '50%', value: 0.5 },
@@ -383,7 +383,7 @@ const WithdrawPage = () => {
                       key={btn.label}
                       type="button"
                       onClick={() => handleQuickPercent(btn.value)}
-                      className="rounded-lg border border-slate-800 bg-slate-950/80 px-3 py-1 text-xs font-semibold text-slate-300 transition hover:border-cyan-400/40 hover:bg-cyan-400/10 hover:text-cyan-300"
+                      className="rounded-lg border border-[#1E493B] bg-[#071C18] px-3 py-1 text-xs font-semibold text-[#A7C4B8] transition hover:border-[#34D399]/50 hover:bg-[#164B3A] hover:text-[#34D399]"
                     >
                       {btn.label}
                     </button>
@@ -392,7 +392,7 @@ const WithdrawPage = () => {
 
                 {/* Validation Warnings */}
                 {isUnderMin && (
-                  <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-400">
+                  <p className="mt-2 flex items-center gap-1.5 text-xs text-[#F1D78A]">
                     <AlertCircle className="h-3.5 w-3.5" />
                     Minimum withdrawal is 20 USDT.
                   </p>
@@ -408,11 +408,11 @@ const WithdrawPage = () => {
               {/* Destination Address Input */}
               <div>
                 <div className="flex items-center justify-between">
-                  <label htmlFor="destination-address" className="text-xs font-medium uppercase tracking-wider text-slate-400">
+                  <label htmlFor="destination-address" className="text-xs font-medium uppercase tracking-wider text-[#91A89E]">
                     BEP-20 Destination Wallet Address
                   </label>
                   {destinationAddress.trim() && (
-                    <span className={`flex items-center gap-1 text-[11px] font-medium ${isAddressValid ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    <span className={`flex items-center gap-1 text-[11px] font-medium ${isAddressValid ? 'text-[#34D399]' : 'text-rose-400'}`}>
                       {isAddressValid ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
                       {isAddressValid ? 'Valid BEP-20 address' : 'Invalid address format'}
                     </span>
@@ -426,39 +426,39 @@ const WithdrawPage = () => {
                     placeholder="0x..."
                     value={destinationAddress}
                     onChange={(e) => setDestinationAddress(e.target.value)}
-                    className={`w-full rounded-xl border bg-slate-950 px-4 py-3 font-mono text-sm text-cyan-300 placeholder-slate-600 outline-none transition ${
+                    className={`w-full rounded-xl border bg-[#0B2720] px-4 py-3 font-mono text-sm text-[#34D399] placeholder-[#91A89E] outline-none transition ${
                       destinationAddress.trim()
                         ? isAddressValid
-                          ? 'border-emerald-500/50 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/50'
+                          ? 'border-[#34D399]/60 focus:border-[#34D399] focus:ring-1 focus:ring-[#34D399]'
                           : 'border-rose-500/50 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/50'
-                        : 'border-slate-700 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50'
+                        : 'border-[#1E493B] focus:border-[#34D399] focus:ring-1 focus:ring-[#34D399]'
                     }`}
                   />
                 </div>
-                <p className="mt-1.5 text-[11px] text-slate-500">
+                <p className="mt-1.5 text-[11px] text-[#91A89E]">
                   Must be a valid BEP-20 address on BNB Smart Chain (starts with 0x and contains 40 hex characters).
                 </p>
               </div>
             </div>
 
             {/* Live Calculation Box Column */}
-            <div className="flex flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/60 p-5 lg:col-span-5">
+            <div className="flex flex-col justify-between rounded-xl border border-[#1E493B] bg-[#0B2720] p-5 lg:col-span-5">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#91A89E]">
                   Live Calculation Summary
                 </p>
 
-                <div className="mt-4 space-y-3 divide-y divide-slate-800 text-sm">
+                <div className="mt-4 space-y-3 divide-y divide-[#1E493B] text-sm">
                   <div className="flex items-center justify-between pt-1">
-                    <span className="text-slate-400">Gross Amount</span>
-                    <span className="font-semibold text-white">
+                    <span className="text-[#A7C4B8]">Gross Amount</span>
+                    <span className="font-semibold text-[#ECFDF5]">
                       {grossNum > 0 ? fmt(grossNum) : '0.00'} USDT
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between pt-3">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-slate-400">Platform Fee (5%)</span>
+                      <span className="text-[#A7C4B8]">Platform Fee (5%)</span>
                     </div>
                     <span className="font-semibold text-rose-400">
                       {grossNum > 0 ? `-${fmt(feeAmount)}` : '0.00'} USDT
@@ -467,21 +467,21 @@ const WithdrawPage = () => {
 
                   <div className="flex items-center justify-between pt-3">
                     <div className="flex items-center gap-1.5">
-                      <span className="font-medium text-cyan-300">Net Amount</span>
-                      <span className="text-[10px] text-slate-500">(Tokens Received)</span>
+                      <span className="font-medium text-[#6EE7B7]">Net Amount</span>
+                      <span className="text-[10px] text-[#91A89E]">(Tokens Received)</span>
                     </div>
-                    <span className="text-lg font-bold text-emerald-400">
+                    <span className="text-lg font-bold text-[#34D399]">
                       {grossNum > 0 && netAmount > 0 ? fmt(netAmount) : '0.00'} USDT
                     </span>
                   </div>
                 </div>
 
-                <div className="mt-5 rounded-lg border border-slate-800/80 bg-slate-900/60 p-3 text-xs text-slate-400">
-                  <p className="flex items-center gap-1.5 text-[11px] text-slate-300 font-semibold">
-                    <Mail className="h-3.5 w-3.5 text-cyan-400 shrink-0" />
+                <div className="mt-5 rounded-lg border border-[#1E493B] bg-[#071C18] p-3 text-xs text-[#A7C4B8]">
+                  <p className="flex items-center gap-1.5 text-[11px] text-[#ECFDF5] font-semibold">
+                    <Mail className="h-3.5 w-3.5 text-[#34D399] shrink-0" />
                     Mandatory Two-Step Security
                   </p>
-                  <p className="mt-1 text-[10px] leading-relaxed text-slate-500">
+                  <p className="mt-1 text-[10px] leading-relaxed text-[#91A89E]">
                     Clicking Proceed will dispatch a secure 6-digit OTP code to your registered email address before any funds are moved.
                   </p>
                 </div>
@@ -492,11 +492,11 @@ const WithdrawPage = () => {
                 type="button"
                 disabled={!isAmountValid || !isAddressValid || initiating}
                 onClick={handleInitiateWithdrawal}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 py-3 text-sm font-semibold text-slate-950 transition hover:from-cyan-400 hover:to-blue-500 disabled:cursor-not-allowed disabled:opacity-40 shadow-[0_0_20px_rgba(34,211,238,0.2)]"
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#34D399] py-3 text-sm font-bold text-[#071C18] transition hover:bg-[#6EE7B7] hover:shadow-[0_0_20px_rgba(52,211,153,0.35)] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {initiating ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin text-[#071C18]" />
                     Dispatching Security OTP...
                   </>
                 ) : (
@@ -512,23 +512,23 @@ const WithdrawPage = () => {
 
         {/* STEP 2: OTP VERIFICATION MODAL */}
         {showOtpModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-md">
-            <div className="w-full max-w-lg rounded-2xl border border-cyan-400/40 bg-slate-900 p-6 shadow-[0_0_60px_rgba(34,211,238,0.3)]">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#071C18]/85 p-4 backdrop-blur-md">
+            <div className="w-full max-w-lg rounded-2xl border border-[#D4AF37]/40 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] p-6 shadow-[0_0_60px_rgba(212,175,55,0.25)]">
               {/* Modal Header */}
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center justify-between border-b border-[#1E493B] pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-300">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#164B3A] text-[#34D399]">
                     <ShieldCheck className="h-5 w-5" />
                   </span>
                   <div>
-                    <h4 className="text-base font-bold text-white">Two-Factor OTP Authorization</h4>
-                    <p className="text-[11px] text-slate-400">Step 2 of 2: Confirm your withdrawal request</p>
+                    <h4 className="text-base font-bold text-[#ECFDF5]">Two-Factor OTP Authorization</h4>
+                    <p className="text-[11px] text-[#91A89E]">Step 2 of 2: Confirm your withdrawal request</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowOtpModal(false)}
-                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
+                  className="rounded-lg p-1.5 text-[#91A89E] hover:bg-[#164B3A] hover:text-[#ECFDF5]"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -536,33 +536,33 @@ const WithdrawPage = () => {
 
               {/* Transaction Summary Card */}
               <div className="mt-4 space-y-3.5">
-                <div className="rounded-xl border border-slate-800 bg-slate-950 p-3.5 space-y-2 text-xs">
+                <div className="rounded-xl border border-[#1E493B] bg-[#0B2720] p-3.5 space-y-2 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Withdrawal Gross:</span>
-                    <span className="font-semibold text-white">{fmt(grossNum)} USDT</span>
+                    <span className="text-[#91A89E]">Withdrawal Gross:</span>
+                    <span className="font-semibold text-[#ECFDF5]">{fmt(grossNum)} USDT</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Processing Fee (5%):</span>
+                    <span className="text-[#91A89E]">Processing Fee (5%):</span>
                     <span className="font-semibold text-rose-400">-{fmt(feeAmount)} USDT</span>
                   </div>
-                  <div className="flex justify-between border-t border-slate-800 pt-1.5 font-bold">
-                    <span className="text-cyan-300">Net Received:</span>
-                    <span className="text-emerald-400">{fmt(netAmount)} USDT</span>
+                  <div className="flex justify-between border-t border-[#1E493B] pt-1.5 font-bold">
+                    <span className="text-[#6EE7B7]">Net Received:</span>
+                    <span className="text-[#34D399]">{fmt(netAmount)} USDT</span>
                   </div>
                   <div className="flex justify-between pt-1 text-[11px]">
-                    <span className="text-slate-400">Payout Mode:</span>
+                    <span className="text-[#91A89E]">Payout Mode:</span>
                     {isInstant ? (
-                      <span className="font-semibold text-emerald-400">⚡ Instant On-Chain Processing (&lt; 300 USDT)</span>
+                      <span className="font-semibold text-[#34D399]">⚡ Instant On-Chain Processing (&lt; 300 USDT)</span>
                     ) : (
-                      <span className="font-semibold text-amber-400">🛡️ Admin Manual Review (&ge; 300 USDT)</span>
+                      <span className="font-semibold text-[#F1D78A]">🛡️ Admin Manual Review (&ge; 300 USDT)</span>
                     )}
                   </div>
                 </div>
 
                 {/* Email instruction */}
                 <div className="text-center pt-1">
-                  <p className="text-xs text-slate-300">
-                    Enter the 6-digit code sent to <strong className="text-cyan-300 font-mono">{registeredEmail}</strong>
+                  <p className="text-xs text-[#A7C4B8]">
+                    Enter the 6-digit code sent to <strong className="text-[#34D399] font-mono">{registeredEmail}</strong>
                   </p>
                 </div>
 
@@ -578,17 +578,17 @@ const WithdrawPage = () => {
                       value={digit}
                       onChange={(e) => handleOtpChange(idx, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                      className="h-12 w-12 rounded-xl border border-slate-700 bg-slate-950 text-center font-mono text-xl font-bold text-cyan-300 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/40"
+                      className="h-12 w-12 rounded-xl border border-[#1E493B] bg-[#071C18] text-center font-mono text-xl font-bold text-[#34D399] outline-none transition focus:border-[#34D399] focus:ring-2 focus:ring-[#34D399]/40"
                     />
                   ))}
                 </div>
 
                 {/* Timer & Resend */}
                 <div className="flex items-center justify-between text-xs px-2">
-                  <div className="flex items-center gap-1.5 text-slate-400">
-                    <Timer className="h-3.5 w-3.5 text-amber-400" />
+                  <div className="flex items-center gap-1.5 text-[#91A89E]">
+                    <Timer className="h-3.5 w-3.5 text-[#F1D78A]" />
                     <span>Expires in:</span>
-                    <span className={`font-mono font-bold ${timerSeconds < 60 ? 'text-rose-400' : 'text-amber-300'}`}>
+                    <span className={`font-mono font-bold ${timerSeconds < 60 ? 'text-rose-400' : 'text-[#F1D78A]'}`}>
                       {formatTimer(timerSeconds)}
                     </span>
                   </div>
@@ -597,7 +597,7 @@ const WithdrawPage = () => {
                     type="button"
                     disabled={resending || timerSeconds > 540}
                     onClick={handleResendOtp}
-                    className="text-xs font-semibold text-cyan-400 hover:underline disabled:cursor-not-allowed disabled:opacity-40"
+                    className="text-xs font-semibold text-[#34D399] hover:underline disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {resending ? 'Sending...' : 'Resend Code'}
                   </button>
@@ -605,12 +605,12 @@ const WithdrawPage = () => {
               </div>
 
               {/* Modal Actions */}
-              <div className="mt-6 flex items-center justify-end gap-3 border-t border-slate-800 pt-4">
+              <div className="mt-6 flex items-center justify-end gap-3 border-t border-[#1E493B] pt-4">
                 <button
                   type="button"
                   disabled={confirming}
                   onClick={() => setShowOtpModal(false)}
-                  className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs font-semibold text-slate-300 transition hover:bg-slate-700"
+                  className="rounded-xl border border-[#1E493B] bg-[#0B2720] px-4 py-2.5 text-xs font-semibold text-[#A7C4B8] transition hover:bg-[#164B3A]"
                 >
                   Cancel
                 </button>
@@ -618,11 +618,11 @@ const WithdrawPage = () => {
                   type="button"
                   disabled={confirming || otpDigits.join('').length !== 6 || timerSeconds <= 0}
                   onClick={handleConfirmWithdrawal}
-                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 px-5 py-2.5 text-xs font-bold text-slate-950 transition hover:from-cyan-300 hover:to-blue-400 shadow-[0_0_20px_rgba(34,211,238,0.3)] disabled:opacity-50"
+                  className="flex items-center gap-2 rounded-xl bg-[#34D399] px-5 py-2.5 text-xs font-bold text-[#071C18] transition hover:bg-[#6EE7B7] shadow-[0_0_20px_rgba(52,211,153,0.3)] disabled:opacity-50"
                 >
                   {confirming ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin text-[#071C18]" />
                       Verifying & Authorizing...
                     </>
                   ) : (
@@ -635,35 +635,35 @@ const WithdrawPage = () => {
         )}
 
         {/* Withdrawal History Table */}
-        <section className="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden">
-          <div className="flex flex-col justify-between gap-2 border-b border-slate-800 px-6 py-4 sm:flex-row sm:items-center">
+        <section className="rounded-2xl border border-[#D4AF37]/35 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] overflow-hidden shadow-card-gold transition-all duration-300 hover:border-[#D4AF37]/60">
+          <div className="flex flex-col justify-between gap-2 border-b border-[#1E493B] px-6 py-4 sm:flex-row sm:items-center">
             <div>
-              <h3 className="text-base font-semibold text-white">Withdrawal History</h3>
-              <p className="text-xs text-slate-500">
+              <h3 className="text-base font-semibold text-[#ECFDF5]">Withdrawal History</h3>
+              <p className="text-xs text-[#91A89E]">
                 Detailed record of all submitted payout requests, processing tiers, and on-chain proofs
               </p>
             </div>
-            <span className="self-start rounded-full border border-slate-800 bg-slate-950 px-3 py-1 text-xs text-slate-400">
+            <span className="self-start rounded-full border border-[#1E493B] bg-[#0B2720] px-3 py-1 text-xs text-[#A7C4B8]">
               {withdrawals.length} request{withdrawals.length === 1 ? '' : 's'}
             </span>
           </div>
 
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+              <Loader2 className="h-8 w-8 animate-spin text-[#34D399]" />
             </div>
           ) : withdrawals.length === 0 ? (
             <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
-              <Wallet className="h-12 w-12 text-slate-700 mb-3" />
-              <p className="text-sm font-semibold text-slate-300">No withdrawal requests yet</p>
-              <p className="mt-1 max-w-sm text-xs text-slate-500">
+              <Wallet className="h-12 w-12 text-[#1E493B] mb-3" />
+              <p className="text-sm font-semibold text-[#ECFDF5]">No withdrawal requests yet</p>
+              <p className="mt-1 max-w-sm text-xs text-[#91A89E]">
                 When you request a payout, its processing tier, status, and BSCScan transaction details will appear here.
               </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="border-b border-slate-800 bg-slate-950/70 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                <thead className="border-b border-[#1E493B] bg-[#0B2720]/80 text-[11px] font-semibold uppercase tracking-wider text-[#91A89E]">
                   <tr>
                     <th className="px-5 py-3.5">Date & Time</th>
                     <th className="px-4 py-3.5">Gross</th>
@@ -675,32 +675,32 @@ const WithdrawPage = () => {
                     <th className="px-6 py-3.5 text-right">BscScan TxHash</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/70">
+                <tbody className="divide-y divide-[#1E493B]">
                   {withdrawals.map((req) => (
-                    <tr key={req._id} className="transition hover:bg-slate-800/30">
-                      <td className="whitespace-nowrap px-5 py-4 text-slate-300">
+                    <tr key={req._id} className="transition hover:bg-[#164B3A]/40">
+                      <td className="whitespace-nowrap px-5 py-4 text-[#91A89E]">
                         {fmtDate(req.createdAt)}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 font-semibold text-slate-200">
+                      <td className="whitespace-nowrap px-4 py-4 font-semibold text-[#ECFDF5]">
                         {fmt(req.grossAmount)} USDT
                       </td>
                       <td className="whitespace-nowrap px-4 py-4 text-rose-400">
                         -{fmt(req.feeAmount)} USDT
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 font-bold text-emerald-400">
+                      <td className="whitespace-nowrap px-4 py-4 font-bold text-[#34D399]">
                         {fmt(req.netAmount)} USDT
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 font-mono text-cyan-300">
+                      <td className="whitespace-nowrap px-4 py-4 font-mono text-[#34D399]">
                         <div className="flex items-center gap-1.5">
                           <span>{truncate(req.destinationAddress, 6, 4)}</span>
                           <button
                             type="button"
                             onClick={() => copyText(req.destinationAddress, `addr-${req._id}`, 'Address copied')}
-                            className="rounded p-1 text-slate-500 hover:bg-slate-800 hover:text-slate-300"
+                            className="rounded p-1 text-[#91A89E] hover:bg-[#164B3A] hover:text-[#ECFDF5]"
                             title="Copy Address"
                           >
                             {copiedKey === `addr-${req._id}` ? (
-                              <Check className="h-3 w-3 text-emerald-400" />
+                              <Check className="h-3 w-3 text-[#34D399]" />
                             ) : (
                               <Copy className="h-3 w-3" />
                             )}
@@ -711,13 +711,13 @@ const WithdrawPage = () => {
                       {/* Tier Badge: Instant vs Manual */}
                       <td className="whitespace-nowrap px-4 py-4">
                         {req.autoProcessed ? (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-bold text-cyan-300">
-                            <Zap className="h-3 w-3 text-cyan-400" />
+                          <span className="inline-flex items-center gap-1 rounded-full border border-[#34D399]/30 bg-[#34D399]/10 px-2 py-0.5 text-[10px] font-bold text-[#34D399]">
+                            <Zap className="h-3 w-3 text-[#34D399]" />
                             Instant
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">
-                            <ShieldCheck className="h-3 w-3 text-amber-400" />
+                          <span className="inline-flex items-center gap-1 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-2 py-0.5 text-[10px] font-bold text-[#F1D78A]">
+                            <ShieldCheck className="h-3 w-3 text-[#F1D78A]" />
                             Manual Review
                           </span>
                         )}
@@ -726,13 +726,13 @@ const WithdrawPage = () => {
                       {/* Status Badge */}
                       <td className="whitespace-nowrap px-4 py-4">
                         {req.status === 'pending' && (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-400">
+                          <span className="inline-flex items-center gap-1 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#F1D78A]">
                             <Clock className="h-3 w-3 animate-pulse" />
                             Under Review
                           </span>
                         )}
                         {req.status === 'approved' && (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
+                          <span className="inline-flex items-center gap-1 rounded-full border border-[#34D399]/30 bg-[#34D399]/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#34D399]">
                             <CheckCircle2 className="h-3 w-3" />
                             Approved
                           </span>
@@ -760,7 +760,7 @@ const WithdrawPage = () => {
                               href={`https://bscscan.com/tx/${req.txHash}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center gap-1 font-mono text-cyan-400 hover:underline hover:text-cyan-300"
+                              className="inline-flex items-center gap-1 font-mono text-[#34D399] hover:underline hover:text-[#6EE7B7]"
                             >
                               <span>{truncate(req.txHash, 6, 4)}</span>
                               <ExternalLink className="h-3 w-3" />
@@ -768,20 +768,20 @@ const WithdrawPage = () => {
                             <button
                               type="button"
                               onClick={() => copyText(req.txHash, `tx-${req._id}`, 'TxHash copied')}
-                              className="rounded p-1 text-slate-500 hover:bg-slate-800 hover:text-slate-300"
+                              className="rounded p-1 text-[#91A89E] hover:bg-[#164B3A] hover:text-[#ECFDF5]"
                               title="Copy TxHash"
                             >
                               {copiedKey === `tx-${req._id}` ? (
-                                <Check className="h-3 w-3 text-emerald-400" />
+                                <Check className="h-3 w-3 text-[#34D399]" />
                               ) : (
                                 <Copy className="h-3 w-3" />
                               )}
                             </button>
                           </div>
                         ) : req.status === 'pending' ? (
-                          <span className="text-amber-400/80 italic text-[11px]">Under Admin Review</span>
+                          <span className="text-[#F1D78A]/80 italic text-[11px]">Under Admin Review</span>
                         ) : (
-                          <span className="text-slate-600">—</span>
+                          <span className="text-[#91A89E]">—</span>
                         )}
                       </td>
                     </tr>

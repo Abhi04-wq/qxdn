@@ -9,8 +9,8 @@ const AdminRoute = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950">
-        <Loader2 className="h-10 w-10 animate-spin text-cyan-400" />
+      <div className="flex min-h-screen items-center justify-center bg-[#071C18]">
+        <Loader2 className="h-10 w-10 animate-spin text-[#34D399]" />
       </div>
     );
   }
@@ -21,11 +21,11 @@ const AdminRoute = () => {
 
   if (user.role !== 'admin') {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-950 px-4 text-center">
-        <ShieldAlert className="h-12 w-12 text-red-400" />
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#071C18] px-4 text-center">
+        <ShieldAlert className="h-12 w-12 text-rose-400" />
         <div>
-          <p className="text-lg font-semibold text-white">Admin access required</p>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="text-lg font-bold text-[#ECFDF5]">Admin access required</p>
+          <p className="mt-1 text-sm text-[#A7C4B8]">
             Your account is not an admin. Sign in with an admin account to view this page.
           </p>
         </div>

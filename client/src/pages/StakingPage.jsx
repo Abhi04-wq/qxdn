@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Loader2, X, FlaskConical, AlertCircle, CheckCircle2, Lock, TrendingUp, Zap, Gift,
+  Loader2, X, AlertCircle, CheckCircle2, Lock, TrendingUp, Zap, Gift,
 } from 'lucide-react';
 import api from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -51,7 +51,6 @@ const StakingPage = () => {
   const [amount, setAmount] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [accrualBusy, setAccrualBusy] = useState(false);
   const [error, setError] = useState('');
   const [toast, setToast] = useState('');
 
@@ -109,47 +108,25 @@ const StakingPage = () => {
     }
   };
 
-  const runAccrual = async () => {
-    setAccrualBusy(true);
-    try {
-      const { data } = await api.post('/api/test/run-daily-accrual', {});
-      const d = data.data;
-      setToast(`Accrual ${d.simulationDate}: ${d.totalProcessed} processed, +${fmt(d.totalAccruedAmount)} USDT pending, ${d.completedStakesCount} completed`);
-      await refresh();
-    } catch (err) {
-      setToast(err.response?.data?.message || 'Accrual simulation failed');
-    } finally {
-      setAccrualBusy(false);
-    }
-  };
-
   return (
-    <div className="text-slate-200">
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="text-[#ECFDF5] min-h-screen bg-[#071C18]">
+      <main className="w-full px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-white">Staking Plans</h2>
-            <p className="mt-1 text-sm text-slate-500">Welcome back, choose a plan and start earning</p>
+            <h2 className="text-2xl font-bold font-mono tracking-tight text-[#ECFDF5]">Staking Positions</h2>
+            <p className="mt-1 text-sm text-[#A7C4B8]">Choose your emerald staking tier and accrue daily yields</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-2">
-              <p className="text-[10px] uppercase tracking-wider text-slate-500">Available Deposit</p>
-              <p className="text-sm font-bold text-white">{balances ? `${fmt(balances.availableDeposit)} USDT` : '—'}</p>
+            <div className="rounded-2xl border border-[#1E493B] bg-[#0B2720] px-4 py-2 shadow-sm">
+              <p className="text-[10px] font-mono uppercase tracking-wider text-[#91A89E]">Available Deposit</p>
+              <p className="text-sm font-bold font-mono text-[#34D399]">{balances ? `${fmt(balances.availableDeposit)} USDT` : '—'}</p>
             </div>
-            <button
-              onClick={runAccrual}
-              disabled={accrualBusy}
-              className="flex items-center gap-2 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-2.5 text-xs font-semibold text-emerald-400 transition hover:bg-emerald-400/20 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {accrualBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FlaskConical className="h-3.5 w-3.5" />}
-              Simulate 1-Day Accrual
-            </button>
           </div>
         </div>
 
         {loading ? (
           <div className="flex items-center justify-center py-24">
-            <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+            <Loader2 className="h-8 w-8 animate-spin text-[#34D399]" />
           </div>
         ) : (
           <>
@@ -158,36 +135,43 @@ const StakingPage = () => {
               {PLANS.map((p) => (
                 <div
                   key={p.key}
-                  className="flex flex-col rounded-2xl border border-slate-800 bg-slate-900 p-6 transition hover:border-cyan-400/30 hover:shadow-[0_0_35px_-10px_rgba(34,211,238,0.15)]"
+                  className="group relative flex flex-col justify-between rounded-3xl border border-[#D4AF37]/35 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] p-6 shadow-card-gold transition-all duration-300 hover:border-[#D4AF37]/70 hover:shadow-[0_8px_35px_rgba(212,175,55,0.2)]"
                 >
-                  <h3 className="text-base font-bold tracking-wide text-white">{p.name}</h3>
-                  <p className="mt-0.5 text-xs text-slate-500">{p.subtitle}</p>
-
-                  <p className="mt-4 text-4xl font-bold tracking-tight text-emerald-400">
-                    {(p.rate * 100).toFixed(2)}<span className="text-2xl">%</span>
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500">Daily Staking Reward for {p.days} Days</p>
-
-                  <div className="mt-5 space-y-2 border-t border-slate-800 pt-4 text-xs">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-slate-500">Staking Range</span>
-                      <span className="font-semibold text-slate-200">{p.rangeLabel}</span>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-slate-500">Maximum Rewards</span>
-                      <span className="font-semibold text-slate-200">Up to 100%</span>
-                    </div>
-                    <div className="flex items-center justify-between gap-2 rounded-lg border border-amber-500/20 bg-amber-500/5 px-2.5 py-1.5 text-amber-300">
-                      <span className="flex items-center gap-1 text-[11px] font-medium text-amber-400">
-                        <Gift className="h-3 w-3" /> Airdrop Bonus
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-base font-bold font-mono tracking-wide text-[#F1D78A]">{p.name}</h3>
+                      <span className="rounded-full border border-[#D4AF37]/40 bg-[#D4AF37]/10 px-2 py-0.5 text-[10px] font-mono font-bold text-[#F1D78A]">
+                        {p.days} Days
                       </span>
-                      <span className="font-mono text-[10px] font-bold text-amber-300">{p.promoBonus}</span>
+                    </div>
+                    <p className="mt-0.5 text-xs font-mono text-[#A7C4B8]">{p.subtitle}</p>
+
+                    <p className="mt-4 text-4xl font-black font-mono tracking-tight text-gold-gradient">
+                      {(p.rate * 100).toFixed(2)}<span className="text-2xl text-[#D4AF37]">%</span>
+                    </p>
+                    <p className="mt-1 text-xs font-mono text-[#91A89E]">Daily Yield for {p.days} Days</p>
+
+                    <div className="mt-5 space-y-2 border-t border-[#1E493B] pt-4 text-xs font-mono">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[#A7C4B8]">Staking Range</span>
+                        <span className="font-semibold text-[#ECFDF5]">{p.rangeLabel}</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[#A7C4B8]">Reward Cap</span>
+                        <span className="font-semibold text-[#F1D78A]">100% Guaranteed</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-2 rounded-xl border border-[#1E493B] bg-[#0B2720] px-2.5 py-1.5 text-[#6EE7B7]">
+                        <span className="flex items-center gap-1 text-[11px] font-medium text-[#D4AF37]">
+                          <Gift className="h-3 w-3" /> Airdrop Bonus
+                        </span>
+                        <span className="font-mono text-[10px] font-bold text-[#F1D78A]">{p.promoBonus}</span>
+                      </div>
                     </div>
                   </div>
 
                   <button
                     onClick={() => openPlan(p)}
-                    className="mt-6 w-full rounded-lg border border-cyan-400/30 bg-cyan-400/5 py-2.5 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-400/15"
+                    className="mt-6 w-full rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#F1D78A] to-[#D4AF37] hover:brightness-110 py-2.5 text-sm font-bold font-mono text-[#071C18] transition shadow-[0_0_20px_rgba(212,175,55,0.3)]"
                   >
                     Stake Now
                   </button>
@@ -196,22 +180,22 @@ const StakingPage = () => {
             </section>
 
             {/* Active stakes table */}
-            <section className="mt-8 rounded-2xl border border-slate-800 bg-slate-900">
-              <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+            <section className="mt-8 rounded-3xl border border-[#D4AF37]/35 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] shadow-card-gold transition-all duration-300 hover:border-[#D4AF37]/60">
+              <div className="flex items-center justify-between border-b border-[#1E493B] px-6 py-4">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-cyan-400" />
-                  <h3 className="text-sm font-semibold text-white">Your Active Stakes</h3>
+                  <TrendingUp className="h-4 w-4 text-[#34D399]" />
+                  <h3 className="text-sm font-semibold font-mono text-[#ECFDF5]">Your Active Stakes</h3>
                 </div>
-                <span className="rounded-full border border-slate-700/60 bg-slate-950 px-2.5 py-0.5 text-[11px] text-slate-400">
+                <span className="rounded-full border border-[#1E493B] bg-[#0B2720] px-2.5 py-0.5 text-[11px] font-mono text-[#A7C4B8]">
                   {stakes.length} position{stakes.length === 1 ? '' : 's'}
                 </span>
               </div>
 
               {stakes.length === 0 ? (
                 <div className="flex flex-col items-center justify-center px-6 py-14">
-                  <Lock className="mb-4 h-10 w-10 text-slate-700" />
-                  <p className="text-sm font-medium text-slate-300">No stakes yet</p>
-                  <p className="mt-1 max-w-xs text-center text-xs text-slate-500">
+                  <Lock className="mb-4 h-10 w-10 text-[#1E493B]" />
+                  <p className="text-sm font-medium text-[#A7C4B8]">No stakes yet</p>
+                  <p className="mt-1 max-w-xs text-center text-xs text-[#91A89E]">
                     Pick a plan above and click Stake Now to start earning daily rewards.
                   </p>
                 </div>
@@ -219,7 +203,7 @@ const StakingPage = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[720px] text-left text-sm">
                     <thead>
-                      <tr className="text-[11px] uppercase tracking-wider text-slate-500">
+                      <tr className="text-[11px] font-mono uppercase tracking-wider text-[#91A89E] border-b border-[#1E493B]">
                         <th className="px-6 py-3 font-medium">Plan</th>
                         <th className="px-6 py-3 font-medium">Staked</th>
                         <th className="px-6 py-3 font-medium">Reward Rate</th>
@@ -228,37 +212,37 @@ const StakingPage = () => {
                         <th className="px-6 py-3 font-medium">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800">
+                    <tbody className="divide-y divide-[#1E493B]">
                       {stakes.map((s) => {
                         const p = planForStake(s.amount);
                         const pct = Math.min(100, round((s.cumulativeReward / s.maxRewardCap) * 100));
                         return (
-                          <tr key={s._id} className="text-slate-300">
+                          <tr key={s._id} className="text-[#ECFDF5] hover:bg-[#164B3A]/40 transition">
                             <td className="px-6 py-4">
-                              <p className="font-semibold tracking-wide text-white">{p.name}</p>
-                              <p className="mt-0.5 text-[11px] text-slate-500">
+                              <p className="font-semibold font-mono tracking-wide text-[#ECFDF5]">{p.name}</p>
+                              <p className="mt-0.5 text-[11px] font-mono text-[#91A89E]">
                                 Started {new Date(s.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                               </p>
                             </td>
-                            <td className="whitespace-nowrap px-6 py-4">{fmt(s.amount)} USDT</td>
-                            <td className="whitespace-nowrap px-6 py-4">{(s.dailyRate * 100).toFixed(2)}%</td>
-                            <td className="whitespace-nowrap px-6 py-4 font-semibold text-emerald-400">{fmt(s.cumulativeReward)} USDT</td>
+                            <td className="whitespace-nowrap px-6 py-4 font-mono">{fmt(s.amount)} USDT</td>
+                            <td className="whitespace-nowrap px-6 py-4 font-mono text-[#6EE7B7]">{(s.dailyRate * 100).toFixed(2)}%</td>
+                            <td className="whitespace-nowrap px-6 py-4 font-semibold font-mono text-[#34D399]">{fmt(s.cumulativeReward)} USDT</td>
                             <td className="min-w-[160px] px-6 py-4">
-                              <div className="mb-1 h-1.5 w-36 overflow-hidden rounded-full bg-slate-950">
+                              <div className="mb-1 h-2 w-36 overflow-hidden rounded-full bg-[#0B2720] border border-[#1E493B]">
                                 <div
-                                  className={`h-full rounded-full transition-all duration-500 ${pct >= 100 ? 'bg-cyan-400' : 'bg-gradient-to-r from-emerald-500 to-cyan-500'}`}
+                                  className="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-[#34D399] to-[#6EE7B7]"
                                   style={{ width: `${Math.max(2, pct)}%` }}
                                 />
                               </div>
-                              <p className="mt-1 text-[11px] text-slate-500">{fmt(s.cumulativeReward)} / {fmt(s.maxRewardCap)} - {pct}%</p>
+                              <p className="mt-1 text-[11px] font-mono text-[#91A89E]">{fmt(s.cumulativeReward)} / {fmt(s.maxRewardCap)} - {pct}%</p>
                             </td>
                             <td className="px-6 py-4">
-                              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
+                              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-mono font-medium ${
                                 s.status === 'active'
-                                  ? 'border border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                                  ? 'border border-[#34D399]/30 bg-[#34D399]/10 text-[#34D399]'
                                   : s.status === 'completed'
-                                    ? 'border border-cyan-400/20 bg-cyan-400/10 text-cyan-300'
-                                    : 'border border-amber-500/20 bg-amber-500/10 text-amber-400'
+                                    ? 'border border-[#6EE7B7]/30 bg-[#6EE7B7]/10 text-[#6EE7B7]'
+                                    : 'border border-[#D4AF37]/30 bg-[#D4AF37]/10 text-[#F1D78A]'
                               }`}>
                                 {s.status === 'completed' ? <CheckCircle2 className="h-3 w-3" /> : null}
                                 {s.status === 'completed' ? 'Completed' : s.status === 'active' ? 'Active' : 'Paused'}
@@ -304,24 +288,24 @@ const StakeModal = ({
 }) => {
   const value = Number(amount);
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm" onClick={() => !busy && onClose()}>
-      <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between">
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-[#071C18]/80 p-4 backdrop-blur-sm" onClick={() => !busy && onClose()}>
+      <div className="w-full max-w-md rounded-3xl border border-[#D4AF37]/40 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] p-6 shadow-[0_0_50px_rgba(212,175,55,0.25)]" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between pb-3 border-b border-[#1E493B]">
           <div className="flex items-center gap-2">
-            <Lock className="h-4 w-4 text-cyan-400" />
-            <h3 className="text-sm font-semibold text-white">{plan.name} - Stake USDT</h3>
+            <Lock className="h-4 w-4 text-[#D4AF37]" />
+            <h3 className="text-sm font-semibold font-mono text-[#F1D78A]">{plan.name} - Stake USDT</h3>
           </div>
-          <button onClick={onClose} className="text-slate-500 transition hover:text-slate-300" aria-label="Close">
+          <button onClick={onClose} className="text-[#A7C4B8] transition hover:text-[#ECFDF5]" aria-label="Close">
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-3 text-xs font-mono text-[#A7C4B8]">
           Range: {plan.rangeLabel} - {(plan.rate * 100).toFixed(2)}% daily - Available: {fmt(available)} USDT
         </p>
 
         {error && (
-          <div className="mt-4 flex items-start gap-3 rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-400">
+          <div className="mt-4 flex items-start gap-3 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-400">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -332,10 +316,10 @@ const StakeModal = ({
             <button
               key={v}
               onClick={() => { setAmount(String(v)); setError(''); }}
-              className={`flex-1 rounded-lg border py-2.5 text-sm font-medium transition ${
+              className={`flex-1 rounded-xl border py-2.5 text-xs font-bold font-mono transition ${
                 Number(amount) === v
-                  ? 'border-cyan-400/50 bg-cyan-400/10 text-cyan-300'
-                  : 'border-slate-700/80 bg-slate-950 text-slate-300 hover:border-slate-600'
+                  ? 'border-[#34D399] bg-[#34D399]/20 text-[#34D399]'
+                  : 'border-[#1E493B] bg-[#0B2720] text-[#A7C4B8] hover:border-[#34D399]/40'
               }`}
             >
               {v.toLocaleString()}
@@ -350,28 +334,28 @@ const StakeModal = ({
           value={amount}
           onChange={(e) => { setAmount(e.target.value); setError(''); }}
           placeholder={`Amount (${plan.rangeLabel})`}
-          className="mt-3 w-full rounded-lg border border-slate-700/80 bg-slate-950 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20"
+          className="mt-3 w-full rounded-xl border border-[#1E493B] bg-[#0B2720] px-4 py-2.5 text-sm font-mono text-[#ECFDF5] placeholder-[#91A89E] outline-none focus:border-[#34D399]"
         />
 
         {/* Dynamic Airdrop Bonus Preview Card */}
         <AirdropBonusPreview amount={amount} />
 
         {value > 0 && Number.isFinite(value) && (
-          <div className="mt-3 flex items-center gap-2 rounded-lg border border-cyan-400/20 bg-cyan-400/5 px-4 py-3 text-sm">
-            <Zap className="h-4 w-4 text-cyan-400" />
-            <span className="text-slate-300">
-              ${fmt(value)} {'\u2192'} {(plan.rate * 100).toFixed(2)}% = <span className="font-semibold text-cyan-300">${fmt(dailyYield)}/day</span>
+          <div className="mt-3 flex items-center gap-2 rounded-xl border border-[#34D399]/20 bg-[#10352C] px-4 py-3 text-sm">
+            <Zap className="h-4 w-4 text-[#34D399]" />
+            <span className="text-[#A7C4B8] text-xs font-mono">
+              ${fmt(value)} {'\u2192'} {(plan.rate * 100).toFixed(2)}% = <span className="font-semibold text-[#34D399]">${fmt(dailyYield)}/day</span>
             </span>
           </div>
         )}
         {value > 0 && Number.isFinite(value) && !inRange && (
-          <div className="mt-2 flex items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm text-amber-400">
+          <div className="mt-2 flex items-center gap-2 rounded-xl border border-[#D4AF37]/30 bg-[#D4AF37]/5 px-4 py-3 text-xs text-[#F1D78A]">
             <AlertCircle className="h-4 w-4" />
             Amount must be within {plan.rangeLabel}
           </div>
         )}
         {inRange && !withinBalance && (
-          <div className="mt-2 flex items-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/5 px-4 py-3 text-sm text-rose-400">
+          <div className="mt-2 flex items-center gap-2 rounded-xl border border-rose-500/20 bg-rose-500/5 px-4 py-3 text-xs text-rose-400">
             <AlertCircle className="h-4 w-4" />
             Exceeds available deposit balance
           </div>
@@ -380,14 +364,14 @@ const StakeModal = ({
         <button
           onClick={onConfirm}
           disabled={!inRange || !withinBalance || busy}
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-500 py-2.5 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#34D399] hover:bg-[#6EE7B7] py-3 text-sm font-bold font-mono text-[#071C18] disabled:cursor-not-allowed disabled:opacity-50 transition shadow-[0_0_20px_rgba(52,211,153,0.3)]"
         >
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
           Confirm & Stake
         </button>
 
-        <p className="mt-3 text-center text-[11px] text-slate-500">
-          Principal is locked (STAKE_LOCK) - max reward cap is 100% of principal - your sponsor gets a one-time 6% bonus.
+        <p className="mt-3 text-center text-[11px] font-mono text-[#91A89E]">
+          Principal is locked (STAKE_LOCK) - max reward cap is 100% of principal.
         </p>
       </div>
     </div>

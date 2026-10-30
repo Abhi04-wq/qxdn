@@ -68,19 +68,19 @@ const Deposit = () => {
   };
 
   return (
-    <div className="text-slate-200">
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="text-[#ECFDF5]">
+      <main className="w-full px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-white">Deposit USDT</h2>
-            <p className="mt-1 text-sm text-slate-500">Fund your account to start staking</p>
+            <h2 className="text-2xl font-bold tracking-tight text-[#ECFDF5]">Deposit USDT</h2>
+            <p className="mt-1 text-sm text-[#91A89E]">Fund your account to start staking</p>
           </div>
           <div className="flex gap-3">
-            <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-2">
-              <p className="text-[10px] uppercase tracking-wider text-slate-500">Available Deposit</p>
-              <p className="text-sm font-bold text-white">{balances ? `${fmt(balances.availableDeposit)} USDT` : '—'}</p>
+            <div className="rounded-xl border border-[#1E493B] bg-[#10352C] px-4 py-2">
+              <p className="text-[10px] uppercase tracking-wider text-[#91A89E]">Available Deposit</p>
+              <p className="text-sm font-bold text-[#34D399]">{balances ? `${fmt(balances.availableDeposit)} USDT` : '—'}</p>
             </div>
-            <button onClick={() => setSimOpen(true)} className="flex items-center gap-2 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-xs font-medium text-emerald-400 transition hover:bg-emerald-400/20">
+            <button onClick={() => setSimOpen(true)} className="flex items-center gap-2 rounded-xl border border-[#34D399]/40 bg-[#164B3A] px-4 py-2 text-xs font-semibold text-[#34D399] transition hover:bg-[#34D399] hover:text-[#071C18]">
               <FlaskConical className="h-3.5 w-3.5" />
               Simulator
             </button>
@@ -89,60 +89,60 @@ const Deposit = () => {
 
         {loading ? (
           <div className="flex items-center justify-center py-24">
-            <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+            <Loader2 className="h-8 w-8 animate-spin text-[#34D399]" />
           </div>
         ) : (
           <>
             <section className="grid grid-cols-1 gap-4 lg:grid-cols-5">
-              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 lg:col-span-3">
+              <div className="rounded-2xl border border-[#D4AF37]/35 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] p-6 shadow-card-gold transition-all duration-300 hover:border-[#D4AF37]/60 lg:col-span-3">
                 <div className="flex items-center gap-2">
-                  <Wallet className="h-4 w-4 text-cyan-400" />
-                  <h3 className="text-sm font-semibold text-white">Your Permanent Deposit Address</h3>
+                  <Wallet className="h-4 w-4 text-[#D4AF37]" />
+                  <h3 className="text-sm font-semibold font-mono text-[#F1D78A]">Your Permanent Deposit Address</h3>
                 </div>
-                <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3">
-                  <p className="truncate font-mono text-sm text-cyan-300">{wallet?.depositAddress}</p>
+                <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-[#1E493B] bg-[#0B2720] px-4 py-3">
+                  <p className="truncate font-mono text-sm text-[#F1D78A]">{wallet?.depositAddress}</p>
                   <button
                     onClick={() => copyText(wallet.depositAddress, 'addr', 'Deposit address copied')}
-                    className="flex shrink-0 items-center gap-1.5 rounded-lg border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-xs font-medium text-cyan-400 transition hover:bg-cyan-400/20"
+                    className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[#D4AF37]/40 bg-[#D4AF37]/15 px-3 py-1.5 text-xs font-mono font-bold text-[#F1D78A] transition hover:bg-[#D4AF37]/25"
                   >
                     {copied === 'addr' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                     {copied === 'addr' ? 'Copied' : 'Copy Address'}
                   </button>
                 </div>
-                <ul className="mt-4 space-y-2">
+                <ul className="mt-4 space-y-2 font-mono">
                   {[wallet?.network, `Minimum Deposit: 100 USDT`, 'Requires 15 Confirmations'].map((t) => (
-                    <li key={t} className="flex items-center gap-2 text-xs text-slate-400">
-                      <Network className="h-3 w-3 text-slate-600" />
+                    <li key={t} className="flex items-center gap-2 text-xs text-[#A7C4B8]">
+                      <Network className="h-3 w-3 text-[#D4AF37]" />
                       {t}
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 p-6 lg:col-span-2">
-                <div className="rounded-xl border border-dashed border-slate-700 bg-slate-950 p-6">
-                  <QrCode className="h-24 w-24 text-slate-600" />
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-[#D4AF37]/35 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] p-6 shadow-card-gold transition-all duration-300 hover:border-[#D4AF37]/60 lg:col-span-2">
+                <div className="rounded-xl border border-dashed border-[#D4AF37]/30 bg-[#0B2720] p-6">
+                  <QrCode className="h-24 w-24 text-[#F1D78A]" />
                 </div>
-                <p className="mt-3 text-xs text-slate-600">QR placeholder (scan via wallet app soon)</p>
+                <p className="mt-3 text-xs font-mono text-[#A7C4B8]">QR Code for Mobile Wallet Scanning</p>
               </div>
             </section>
 
-            <section className="mt-8 rounded-2xl border border-slate-800 bg-slate-900">
-              <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+            <section className="mt-8 rounded-2xl border border-[#D4AF37]/35 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] shadow-card-gold transition-all duration-300 hover:border-[#D4AF37]/60">
+              <div className="flex items-center justify-between border-b border-[#1E493B] px-6 py-4">
                 <div className="flex items-center gap-2">
-                  <History className="h-4 w-4 text-cyan-400" />
-                  <h3 className="text-sm font-semibold text-white">Transaction History</h3>
+                  <History className="h-4 w-4 text-[#34D399]" />
+                  <h3 className="text-sm font-semibold text-[#ECFDF5]">Transaction History</h3>
                 </div>
-                <span className="rounded-full border border-slate-700/60 bg-slate-950 px-2.5 py-0.5 text-[11px] text-slate-400">
+                <span className="rounded-full border border-[#1E493B] bg-[#0B2720] px-2.5 py-0.5 text-[11px] text-[#A7C4B8]">
                   {ledger.length} events
                 </span>
               </div>
 
               {ledger.length === 0 ? (
                 <div className="flex flex-col items-center justify-center px-6 py-14">
-                  <Coins className="mb-4 h-10 w-10 text-slate-700" />
-                  <p className="text-sm font-medium text-slate-300">No transactions yet</p>
-                  <p className="mt-1 text-center text-xs text-slate-500">
+                  <Coins className="mb-4 h-10 w-10 text-[#1E493B]" />
+                  <p className="text-sm font-medium text-[#ECFDF5]">No transactions yet</p>
+                  <p className="mt-1 text-center text-xs text-[#91A89E]">
                     Use the simulator (dev) to simulate an on-chain BEP-20 deposit of at least 100 USDT.
                   </p>
                 </div>
@@ -150,7 +150,7 @@ const Deposit = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead>
-                      <tr className="text-[11px] uppercase tracking-wider text-slate-500">
+                      <tr className="bg-[#0B2720]/60 text-[11px] uppercase tracking-wider text-[#91A89E]">
                         <th className="px-6 py-3 font-medium">Date</th>
                         <th className="px-6 py-3 font-medium">Type</th>
                         <th className="px-6 py-3 font-medium">Amount</th>
@@ -158,30 +158,30 @@ const Deposit = () => {
                         <th className="px-6 py-3 font-medium">Tx Hash</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800">
+                    <tbody className="divide-y divide-[#1E493B]">
                       {ledger.map((e) => (
-                        <tr key={e._id} className="text-slate-300">
-                          <td className="whitespace-nowrap px-6 py-3 text-xs text-slate-500">{new Date(e.createdAt).toLocaleString()}</td>
-                          <td className="px-6 py-3">{(TYPE_LABEL[e.type] || e.type).replace(/_/g, ' ')}</td>
-                          <td className={`whitespace-nowrap px-6 py-3 font-medium ${e.amount >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        <tr key={e._id} className="text-[#ECFDF5] transition hover:bg-[#164B3A]/40">
+                          <td className="whitespace-nowrap px-6 py-3 text-xs text-[#91A89E]">{new Date(e.createdAt).toLocaleString()}</td>
+                          <td className="px-6 py-3 text-[#A7C4B8]">{(TYPE_LABEL[e.type] || e.type).replace(/_/g, ' ')}</td>
+                          <td className={`whitespace-nowrap px-6 py-3 font-medium ${e.amount >= 0 ? 'text-[#34D399]' : 'text-red-400'}`}>
                             {e.amount >= 0 ? '+' : ''}{e.amount.toLocaleString('en-US', { maximumFractionDigits: 6 })} {e.currency || 'USDT'}
                           </td>
                           <td className="px-6 py-3">
                             <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
                               e.status === 'confirmed'
-                                ? 'border border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                                ? 'border border-[#34D399]/30 bg-[#34D399]/10 text-[#34D399]'
                                 : e.status === 'failed'
                                 ? 'border border-red-500/20 bg-red-500/10 text-red-400'
-                                : 'border border-amber-500/20 bg-amber-500/10 text-amber-400'
+                                : 'border border-[#D4AF37]/30 bg-[#D4AF37]/10 text-[#F1D78A]'
                             }`}>
                               <CheckCircle2 className="h-3 w-3" />
                               {e.status === 'confirmed' ? `Confirmed (${e.confirmations})` : e.status}
                             </span>
                           </td>
                           <td className="px-6 py-3">
-                            <span className="flex items-center gap-1 font-mono text-xs text-slate-400" title={e.txHash}>
+                            <span className="flex items-center gap-1 font-mono text-xs text-[#91A89E]" title={e.txHash}>
                               {e.txHash ? `${e.txHash.slice(0, 10)}...${e.txHash.slice(-6)}` : '—'}
-                              <ExternalLink className="h-3 w-3 text-slate-600" />
+                              <ExternalLink className="h-3 w-3 text-[#91A89E]" />
                             </span>
                           </td>
                         </tr>
@@ -239,14 +239,14 @@ const SimulateModal = ({ onClose, setToast, onSimulated }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm" onClick={() => !busy && onClose()}>
-      <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-[#071C18]/85 p-4 backdrop-blur-md" onClick={() => !busy && onClose()}>
+      <div className="w-full max-w-md rounded-2xl border border-[#D4AF37]/40 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] p-6 shadow-[0_0_50px_rgba(212,175,55,0.25)]" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <FlaskConical className="h-4 w-4 text-emerald-400" />
-            <h3 className="text-sm font-semibold text-white">Developer Sandbox - Simulate Deposit</h3>
+            <FlaskConical className="h-4 w-4 text-[#D4AF37]" />
+            <h3 className="text-sm font-semibold font-mono text-[#F1D78A]">Developer Sandbox - Simulate Deposit</h3>
           </div>
-          <button onClick={onClose} className="text-slate-500 transition hover:text-slate-300" aria-label="Close">
+          <button onClick={onClose} className="text-[#91A89E] transition hover:text-[#ECFDF5]" aria-label="Close">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -260,16 +260,16 @@ const SimulateModal = ({ onClose, setToast, onSimulated }) => {
 
         {done ? (
           <div className="mt-5 text-center">
-            <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-400" />
-            <p className="mt-3 text-sm font-medium text-white">
+            <CheckCircle2 className="mx-auto h-10 w-10 text-[#34D399]" />
+            <p className="mt-3 text-sm font-medium text-[#ECFDF5]">
               {Number(done.entry.amount).toLocaleString()} USDT credited
             </p>
-            <p className="mt-1 break-all font-mono text-[10px] text-slate-500">{done.entry.txHash}</p>
-            <div className="mt-4 space-y-2 rounded-xl border border-slate-800 bg-slate-950/60 p-4 text-left">
-              <p className="flex justify-between text-xs"><span className="text-slate-500">Available Deposit</span><span className="font-semibold text-white">{fmt(done.balances.availableDeposit)} USDT</span></p>
-              <p className="flex justify-between text-xs"><span className="text-slate-500">Total Deposits</span><span className="text-slate-300">{fmt(done.balances.totalDeposits)} USDT</span></p>
+            <p className="mt-1 break-all font-mono text-[10px] text-[#91A89E]">{done.entry.txHash}</p>
+            <div className="mt-4 space-y-2 rounded-xl border border-[#1E493B] bg-[#0B2720] p-4 text-left">
+              <p className="flex justify-between text-xs"><span className="text-[#91A89E]">Available Deposit</span><span className="font-semibold text-[#34D399]">{fmt(done.balances.availableDeposit)} USDT</span></p>
+              <p className="flex justify-between text-xs"><span className="text-[#91A89E]">Total Deposits</span><span className="text-[#A7C4B8]">{fmt(done.balances.totalDeposits)} USDT</span></p>
             </div>
-            <button onClick={onClose} className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-500 py-2.5 text-sm font-semibold text-slate-950">
+            <button onClick={onClose} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#34D399] py-2.5 text-sm font-bold text-[#071C18] transition hover:bg-[#6EE7B7] hover:shadow-[0_0_20px_rgba(52,211,153,0.35)]">
               Done
               <ArrowRight className="h-4 w-4" />
             </button>
@@ -283,8 +283,8 @@ const SimulateModal = ({ onClose, setToast, onSimulated }) => {
                   onClick={() => { setAmount(String(v)); setError(''); }}
                   className={`rounded-lg border py-2.5 text-sm font-medium transition ${
                     Number(amount) === v
-                      ? 'border-cyan-400/50 bg-cyan-400/10 text-cyan-300'
-                      : 'border-slate-700/80 bg-slate-950 text-slate-300 hover:border-slate-600'
+                      ? 'border-[#34D399] bg-[#164B3A] text-[#34D399]'
+                      : 'border-[#1E493B] bg-[#0B2720] text-[#A7C4B8] hover:border-[#34D399]/40 hover:bg-[#164B3A]'
                   }`}
                 >
                   {v} USDT
@@ -298,17 +298,17 @@ const SimulateModal = ({ onClose, setToast, onSimulated }) => {
               value={amount}
               onChange={(e) => { setAmount(e.target.value); setError(''); }}
               placeholder="Custom amount (min 100)"
-              className="mt-3 w-full rounded-lg border border-slate-700/80 bg-slate-950 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20"
+              className="mt-3 w-full rounded-xl border border-[#1E493B] bg-[#0B2720] px-4 py-2.5 text-sm text-[#ECFDF5] placeholder-[#91A89E] outline-none transition focus:border-[#34D399] focus:ring-1 focus:ring-[#34D399]"
             />
             <button
               onClick={submit}
               disabled={busy}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 py-2.5 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#34D399] py-2.5 text-sm font-bold text-[#071C18] transition hover:bg-[#6EE7B7] hover:shadow-[0_0_20px_rgba(52,211,153,0.35)] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <FlaskConical className="h-4 w-4" />}
+              {busy ? <Loader2 className="h-4 w-4 animate-spin text-[#071C18]" /> : <FlaskConical className="h-4 w-4" />}
               Simulate On-Chain Deposit
             </button>
-            <p className="mt-3 text-center text-[11px] text-slate-500">
+            <p className="mt-3 text-center text-[11px] text-[#91A89E]">
               Credits a confirmed DEPOSIT with a unique 0x txHash into the append-only ledger.
             </p>
           </>

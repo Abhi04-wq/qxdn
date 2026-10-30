@@ -41,14 +41,90 @@ export const getDepositInfo = async (req, res, next) => {
 // @desc    Derived balances (deposits - staked) + rewards + released + ledger history
 export const getBalanceAndLedger = async (req, res, next) => {
   try {
+    const limit = Math.min(Number(req.query.limit) || 100, 500);
     const [balances, entries] = await Promise.all([
       deriveBalances(req.user.id),
-      ledgerHistory(req.user.id),
+      ledgerHistory(req.user.id, limit),
     ]);
 
     res.status(200).json({
       success: true,
       data: { balances, ledger: entries },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @route   GET /api/ledger/income
+// @desc    Detailed income ledger entries with category breakdown & summary totals
+export const getIncomeLedger = async (req, res, next) => {
+  try {
+    const limit = Math.min(Number(req.query.limit) || 500, 1000);
+    const { category, currency, status } = req.query;
+
+    const filter = {};
+    if (currency) filter.currency = currency;
+    if (status) filter.status = status;
+
+    // Category mapping for Income Ledger
+    if (category === 'staking') {
+      filter.type = 'STAKING_DAILY_ACCRUAL';
+    } else if (category === 'referral') {
+      filter.type = 'REFERRAL_BONUS';
+    } else if (category === 'promotional') {
+      filter.type = 'PROMOTIONAL_REWARD';
+    } else if (category === 'unlocks') {
+      filter.type = 'STAKE_UNLOCK';
+    } else if (!category || category === 'all' || category === 'income') {
+      filter.type = { $in: ['STAKING_DAILY_ACCRUAL', 'REFERRAL_BONUS', 'PROMOTIONAL_REWARD', 'STAKE_UNLOCK'] };
+    }
+
+    const [balances, entries, allIncomeAgg] = await Promise.all([
+      deriveBalances(req.user.id),
+      ledgerHistory(req.user.id, limit, filter),
+      Ledger.aggregate([
+        { $match: { userId: req.user._id, type: { $in: ['STAKING_DAILY_ACCRUAL', 'REFERRAL_BONUS', 'PROMOTIONAL_REWARD', 'STAKE_UNLOCK'] } } },
+        {
+          $group: {
+            _id: { type: '$type', status: '$status', currency: '$currency' },
+            totalAmount: { $sum: '$amount' },
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+    ]);
+
+    // Compute category breakdown totals
+    let stakingTotal = 0;
+    let referralTotal = 0;
+    let unlocksTotal = 0;
+    const promoTotals = { SHIB: 0, VET: 0, WILD: 0, DOGE: 0, USDT: 0 };
+
+    allIncomeAgg.forEach((item) => {
+      const { type, currency: curr } = item._id;
+      if (type === 'STAKING_DAILY_ACCRUAL') stakingTotal += item.totalAmount;
+      if (type === 'REFERRAL_BONUS') referralTotal += item.totalAmount;
+      if (type === 'STAKE_UNLOCK') unlocksTotal += item.totalAmount;
+      if (type === 'PROMOTIONAL_REWARD') {
+        promoTotals[curr] = (promoTotals[curr] || 0) + item.totalAmount;
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        balances,
+        ledger: entries,
+        summary: {
+          stakingTotal: Math.round(stakingTotal * 1e6) / 1e6,
+          referralTotal: Math.round(referralTotal * 1e6) / 1e6,
+          unlocksTotal: Math.round(unlocksTotal * 1e6) / 1e6,
+          promoTotals,
+          totalIncome: Math.round((stakingTotal + referralTotal + unlocksTotal) * 1e6) / 1e6,
+          count: entries.length,
+        },
+      },
     });
   } catch (error) {
     next(error);

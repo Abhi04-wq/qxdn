@@ -1,10 +1,298 @@
 @import "tailwindcss";
 
 @theme {
-  --color-coin: #22d3ee;
-  --font-display: "Inter", system-ui, sans-serif;
+  --color-emerald-primary: #071C18;
+  --color-emerald-secondary: #0B2720;
+  --color-emerald-card: #10352C;
+  --color-emerald-hover: #164B3A;
+  --color-emerald-border: #1E493B;
+
+  --color-mint-primary: #34D399;
+  --color-mint-secondary: #6EE7B7;
+
+  --color-gold-primary: #D4AF37;
+  --color-gold-light: #F1D78A;
+
+  --color-text-main: #ECFDF5;
+  --color-text-secondary: #A7C4B8;
+  --color-text-muted: #91A89E;
+
+  --font-display: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+:root {
+  --bg-primary: #071C18;
+  --bg-secondary: #0B2720;
+  --bg-card: #10352C;
+  --bg-hover: #164B3A;
+  --border-emerald: #1E493B;
+  --mint-primary: #34D399;
+  --mint-secondary: #6EE7B7;
+  --gold-primary: #D4AF37;
+  --gold-light: #F1D78A;
+  --text-main: #ECFDF5;
+  --text-secondary: #A7C4B8;
+  --text-muted: #91A89E;
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background-color: theme(--color-slate-950);
+  background-color: #071C18;
+  color: #ECFDF5;
+  font-family: var(--font-display);
+  overflow-x: hidden;
+  selection-background-color: rgba(52, 211, 153, 0.25);
+}
+
+::selection {
+  background: rgba(52, 211, 153, 0.3);
+  color: #ECFDF5;
+}
+
+/* Custom Emerald Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #071C18;
+}
+::-webkit-scrollbar-thumb {
+  background: #1E493B;
+  border-radius: 9999px;
+  border: 1px solid rgba(52, 211, 153, 0.1);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #164B3A;
+}
+
+/* Emerald Glassmorphism Primitives */
+.glass-emerald-card {
+  background: rgba(16, 53, 44, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid #1E493B;
+}
+
+.glass-emerald-pill {
+  background: rgba(11, 39, 32, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid #1E493B;
+}
+
+/* Deep Glowing Cyber Grid with Neon Intersections */
+.bg-grid-cyber {
+  background-size: 44px 44px;
+  background-image: 
+    linear-gradient(to right, rgba(52, 211, 153, 0.16) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(52, 211, 153, 0.16) 1px, transparent 1px);
+}
+
+.bg-grid-glow-points {
+  background-size: 88px 88px;
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(52, 211, 153, 0.7) 1.5px, transparent 0),
+    radial-gradient(circle at 45px 45px, rgba(212, 175, 55, 0.45) 1px, transparent 0);
+}
+
+/* Primary and Secondary Buttons */
+.btn-mint-primary {
+  background-color: #34D399;
+  color: #071C18;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 20px rgba(52, 211, 153, 0.25);
+}
+.btn-mint-primary:hover:not(:disabled) {
+  background-color: #6EE7B7;
+  box-shadow: 0 0 25px rgba(52, 211, 153, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-emerald-secondary {
+  background-color: rgba(16, 53, 44, 0.6);
+  border: 1px solid #1E493B;
+  color: #34D399;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn-emerald-secondary:hover:not(:disabled) {
+  background-color: #164B3A;
+  border-color: #34D399;
+  color: #6EE7B7;
+}
+
+/* Inputs & Form Controls */
+input, select, textarea {
+  accent-color: #34D399;
+}
+
+.input-emerald {
+  background-color: #0B2720;
+  border: 1px solid #1E493B;
+  color: #ECFDF5;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.input-emerald:focus {
+  outline: none;
+  border-color: #34D399;
+  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.2);
+}
+.input-emerald::placeholder {
+  color: #91A89E;
+}
+
+/* Native Accessible Range Slider styled with Emerald Mint */
+input[type="range"].qndx-slider {
+  --slider-track-size: 0.5rem;
+  --slider-thumb-size: 1.5rem;
+  --slider-track-radius: 999px;
+  --slider-thumb-radius: 50%;
+  --slider-track-color: #0B2720;
+  --slider-fill-color: #34D399;
+  --slider-direction: to right;
+
+  appearance: none;
+  width: 100%;
+  height: 2.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"].qndx-slider:focus-visible {
+  outline: 2px solid #34D399;
+  outline-offset: 4px;
+}
+
+input[type="range"].qndx-slider::-webkit-slider-runnable-track {
+  height: var(--slider-track-size);
+  border: 1px solid #1E493B;
+  border-radius: var(--slider-track-radius);
+  background: linear-gradient(
+    var(--slider-direction),
+    var(--slider-fill-color) var(--slider-progress, 30%),
+    var(--slider-track-color) var(--slider-progress, 30%)
+  );
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.2);
+}
+
+input[type="range"].qndx-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--slider-thumb-size);
+  height: var(--slider-thumb-size);
+  margin-top: calc((var(--slider-track-size) - var(--slider-thumb-size)) / 2);
+  border: 2px solid #34D399;
+  border-radius: var(--slider-thumb-radius);
+  background: #071C18;
+  box-shadow: 0 0 15px rgba(52, 211, 153, 0.5), inset 0 0 6px #34D399;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="range"].qndx-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 20px #34D399, inset 0 0 10px #34D399;
+}
+
+input[type="range"].qndx-slider::-moz-range-track {
+  height: var(--slider-track-size);
+  border: 1px solid #1E493B;
+  border-radius: var(--slider-track-radius);
+  background: var(--slider-track-color);
+}
+
+input[type="range"].qndx-slider::-moz-range-progress {
+  height: var(--slider-track-size);
+  border-radius: var(--slider-track-radius);
+  background: #34D399;
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+}
+
+input[type="range"].qndx-slider::-moz-range-thumb {
+  width: var(--slider-thumb-size);
+  height: var(--slider-thumb-size);
+  border: 2px solid #34D399;
+  border-radius: var(--slider-thumb-radius);
+  background: #071C18;
+  box-shadow: 0 0 15px rgba(52, 211, 153, 0.5);
+  transition: transform 0.15s ease;
+}
+
+/* Animations */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+}
+
+@keyframes pulse-aura {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.08); }
+}
+
+@keyframes shine-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.animate-float {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+.animate-aura {
+  animation: pulse-aura 4s ease-in-out infinite;
+}
+
+.animate-shine {
+  animation: shine-sweep 3s ease-in-out infinite;
+}
+
+/* ============ Luxury Gold Layer (use sparingly: ~5%) ============ */
+
+/* Gold gradient text for premium headings & key stats */
+.text-gold-gradient {
+  background: linear-gradient(115deg, #F1D78A 0%, #D4AF37 45%, #F1D78A 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Gradient gold hairline border via padding-box/border-box trick */
+.gold-border-gradient {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(rgba(16, 53, 44, 0.9), rgba(16, 53, 44, 0.9)) padding-box,
+    linear-gradient(135deg, rgba(212, 175, 55, 0.55), rgba(212, 175, 55, 0.08) 40%, rgba(212, 175, 55, 0.35)) border-box;
+}
+
+/* Elegant gold section divider */
+.gold-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.45), transparent);
+}
+
+/* Premium badge / label */
+.gold-badge {
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #F1D78A;
+}
+
+/* Soft refined card shadows */
+.shadow-card-soft {
+  box-shadow: 0 8px 30px rgba(3, 14, 11, 0.45), inset 0 1px 0 rgba(110, 231, 183, 0.06);
+}
+.shadow-card-gold {
+  box-shadow: 0 10px 36px rgba(3, 14, 11, 0.55), 0 0 0 1px rgba(212, 175, 55, 0.08);
+}
+
+/* Subtle emerald-to-black page gradient */
+.bg-emerald-depth {
+  background: linear-gradient(180deg, #0B2720 0%, #071C18 45%, #050F0C 100%);
 }

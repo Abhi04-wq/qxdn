@@ -108,10 +108,12 @@ export const getAvailableBalance = async (userId) => {
   return balances.availableBalance;
 };
 
-export const ledgerHistory = (userId, limit = 50) =>
-  Ledger.find({ userId })
+export const ledgerHistory = (userId, limit = 50, filter = {}) => {
+  const query = { userId, ...filter };
+  return Ledger.find(query)
     .sort({ createdAt: -1 })
     .limit(limit)
     .lean({ virtuals: false });
+};
 
 export default { deriveBalances, getAvailableBalance, ledgerHistory };

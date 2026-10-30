@@ -6,14 +6,14 @@ import { useAuth } from '../context/AuthContext.jsx';
 import Toast from '../components/Toast.jsx';
 
 const InfoRow = ({ Icon, label, value, mono, actions }) => (
-  <div className="flex items-center justify-between gap-4 rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3">
-    <div className="flex items-center gap-3">
-      <span className="rounded-lg border border-slate-800 bg-slate-900 p-2">
-        <Icon className="h-4 w-4 text-cyan-400" />
+  <div className="group relative flex items-center justify-between gap-4 rounded-2xl border border-[#D4AF37]/35 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] px-5 py-4 shadow-card-gold transition-all duration-300 hover:border-[#D4AF37]/70 hover:shadow-[0_8px_35px_rgba(212,175,55,0.2)]">
+    <div className="flex items-center gap-3.5">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#D4AF37]/40 bg-[#D4AF37]/15 text-[#F1D78A] shadow-inner transition group-hover:scale-105 group-hover:shadow-[0_0_15px_rgba(212,175,55,0.4)]">
+        <Icon className="h-5 w-5" />
       </span>
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">{label}</p>
-        <p className={`text-sm text-slate-200 ${mono ? 'font-mono' : ''}`}>{value}</p>
+        <p className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#F1D78A]">{label}</p>
+        <p className={`mt-0.5 text-sm font-bold text-[#ECFDF5] ${mono ? 'font-mono text-gold-gradient' : ''}`}>{value}</p>
       </div>
     </div>
     {actions}
@@ -58,19 +58,19 @@ const Profile = () => {
   };
 
   const copyBtn = (
-    <button onClick={copyReferral} className="flex items-center gap-1.5 rounded-lg border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-xs font-medium text-cyan-400 transition hover:bg-cyan-400/20">
+    <button onClick={copyReferral} className="flex items-center gap-1.5 rounded-lg border border-[#D4AF37]/40 bg-[#D4AF37]/15 px-3 py-1.5 text-xs font-semibold text-[#F1D78A] transition hover:bg-gold-gradient hover:text-[#071C18]">
       {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
       {copied ? 'Copied' : 'Copy'}
     </button>
   );
 
   return (
-    <div className="text-slate-200">
+    <div className="text-[#ECFDF5]">
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-white">My Profile</h2>
-            <p className="mt-1 text-sm text-slate-500">Account details and referral information</p>
+            <h2 className="text-2xl font-bold tracking-tight text-[#ECFDF5]">My Profile</h2>
+            <p className="mt-1 text-sm text-[#91A89E]">Account details and referral information</p>
           </div>
         </div>
 
@@ -88,12 +88,14 @@ const Profile = () => {
             label="Member Since"
             value={profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : '-'}
           />
-          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
-            <div className="flex items-center gap-2">
-              <MailCheck className="h-4 w-4 text-emerald-400" />
-              <p className="text-sm text-emerald-300">
+          <div className="group rounded-2xl border border-[#D4AF37]/35 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] px-5 py-4 shadow-card-gold transition-all duration-300 hover:border-[#D4AF37]/60">
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#D4AF37]/40 bg-[#D4AF37]/15 text-[#F1D78A]">
+                <MailCheck className="h-4 w-4" />
+              </span>
+              <p className="text-sm font-medium text-[#ECFDF5]">
                 {profile?.isEmailVerified
-                  ? 'Your email is verified - full access unlocked.'
+                  ? 'Your email is verified — full access unlocked.'
                   : 'Verify your email to unlock staking features.'}
               </p>
             </div>

@@ -6,7 +6,7 @@ export const generateToken = (userId) =>
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   });
 
-export const protect = (req, res, next) => {
+export const protect = async (req, res, next) => {
   let token;
 
   if (req.headers.authorization?.startsWith('Bearer')) {
@@ -19,7 +19,13 @@ export const protect = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = { id: decoded.id };
+    const user = await User.findById(decoded.id).select('role email');
+    req.user = {
+      id: decoded.id,
+      _id: decoded.id,
+      role: user?.role || 'member',
+      email: user?.email,
+    };
     next();
   } catch {
     return res.status(401).json({ success: false, message: 'Not authorized, token failed' });
@@ -28,7 +34,10 @@ export const protect = (req, res, next) => {
 
 export const requireAdmin = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).select('role');
+    if (req.user?.role === 'admin') {
+      return next();
+    }
+    const user = await User.findById(req.user?.id).select('role');
     if (!user || user.role !== 'admin') {
       return res.status(403).json({ success: false, message: 'Admin access required' });
     }

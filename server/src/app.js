@@ -6,6 +6,7 @@ import referralRoutes from './routes/referralRoutes.js';
 import walletRoutes from './routes/walletRoutes.js';
 import stakingRoutes from './routes/stakingRoutes.js';
 import testRoutes from './routes/testRoutes.js';
+import ticketRoutes from './routes/ticketRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 const app = express();
@@ -32,6 +33,7 @@ app.use('/api', referralRoutes);
 app.use('/api', walletRoutes);
 app.use('/api', stakingRoutes);
 app.use('/api', testRoutes);
+app.use('/api', ticketRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
