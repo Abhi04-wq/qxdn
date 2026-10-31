@@ -20,8 +20,8 @@ const MEMBER_COUNT = 5;
 
 const seed = async () => {
   const args = parseArgs();
-  const adminEmail = (args.email || 'admin@qndx.io').toLowerCase();
-  const adminPassword = args.password || 'AdminPass123';
+  const adminEmail = (args.email || process.env.ADMIN_EMAIL || process.env.ADMIN_USER_ID || 'admin@qndx.io').toLowerCase();
+  const adminPassword = args.password || process.env.ADMIN_PASSWORD || 'AdminPass123';
   const memberCount = parseInt(args.members ?? MEMBER_COUNT, 10);
 
   await connectDB();

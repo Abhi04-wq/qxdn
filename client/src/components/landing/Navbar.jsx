@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Wallet, Menu, X, ArrowUpRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { ADMIN_ROUTES } from '../../lib/adminConfig.js';
 
 export default function Navbar({ onOpenWhitepaper }) {
   const { user } = useAuth();
@@ -52,7 +53,7 @@ export default function Navbar({ onOpenWhitepaper }) {
 
   const handleLaunchApp = () => {
     if (user) {
-      navigate(user.role === 'admin' ? '/admin/dashboard' : '/dashboard');
+      navigate(user.role === 'admin' ? ADMIN_ROUTES.DASHBOARD : '/dashboard');
     } else {
       navigate('/login');
     }
@@ -82,10 +83,10 @@ export default function Navbar({ onOpenWhitepaper }) {
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        className={`w-full rounded-2xl transition-all duration-300 px-3.5 sm:px-6 flex items-center justify-between pointer-events-auto ${
+        className={`w-full max-w-7xl rounded-2xl transition-all duration-300 px-3.5 sm:px-6 py-3 flex items-center justify-between pointer-events-auto ${
           scrolled
-            ? 'max-w-6xl py-2.5 bg-[#020B08]/90 backdrop-blur-2xl border border-[#D4AF37]/35 shadow-[0_15px_45px_-10px_rgba(2,44,34,0.9),0_0_35px_rgba(52,211,153,0.18)]'
-            : 'max-w-7xl py-3 bg-[#020B08]/75 backdrop-blur-xl border border-[#1E493B]/90 shadow-[0_10px_35px_-10px_rgba(0,0,0,0.7)]'
+            ? 'bg-[#020B08]/90 backdrop-blur-2xl border border-[#D4AF37]/35 shadow-[0_15px_45px_-10px_rgba(2,44,34,0.9),0_0_35px_rgba(52,211,153,0.18)]'
+            : 'bg-[#020B08]/75 backdrop-blur-xl border border-[#1E493B]/90 shadow-[0_10px_35px_-10px_rgba(0,0,0,0.7)]'
         }`}
       >
         {/* Brand Logo with ambient rotating aura & gold emblem */}

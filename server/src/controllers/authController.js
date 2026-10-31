@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import User from '../models/User.js';
 import { generateToken } from '../middleware/authMiddleware.js';
-import { sendVerificationOtp } from '../utils/mailer.js';
+import { sendVerificationOtp, sendPasswordResetOtp } from '../utils/mailer.js';
 
 const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
 
@@ -13,6 +13,9 @@ const buildPublicUser = (user) => ({
   _id: user._id,
   email: user.email,
   role: user.role,
+  status: user.status || 'ACTIVE',
+  banReason: user.banReason || null,
+  bannedAt: user.bannedAt || null,
   referralCode: user.referralCode,
   sponsorCode: user.sponsorCode,
   isEmailVerified: user.isEmailVerified,
@@ -51,6 +54,13 @@ export const registerWithReferral = async (req, res, next) => {
     const sponsor = await User.findOne({ referralCode: sponsorCode.trim().toUpperCase() });
     if (!sponsor) {
       return res.status(400).json({ success: false, message: 'Invalid sponsor code' });
+    }
+
+    if (sponsor.status === 'BANNED' || sponsor.status === 'SUSPENDED') {
+      return res.status(400).json({
+        success: false,
+        message: 'This sponsor referral code is currently deactivated due to account suspension.',
+      });
     }
 
     const normalizedEmail = normalizeEmail(email);
@@ -243,7 +253,7 @@ export const memberLogin = async (req, res, next) => {
 };
 
 // @route   POST /api/auth/admin-login
-// @desc    Admin JWT login - enforcing role === 'admin'
+// @desc    Admin JWT login - enforcing role === 'admin' and supporting env-configured admin credentials
 export const adminLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -252,7 +262,32 @@ export const adminLogin = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Email and password are required' });
     }
 
-    const user = await User.findOne({ email: normalizeEmail(email) }).select('+password');
+    const normalizedEmail = normalizeEmail(email);
+    const envAdminEmail = (process.env.ADMIN_EMAIL || process.env.ADMIN_USER_ID || 'admin@qndx.io').trim().toLowerCase();
+    const envAdminPassword = process.env.ADMIN_PASSWORD;
+
+    // If logging in with the env-defined admin credentials, ensure DB is in sync
+    if (normalizedEmail === envAdminEmail && envAdminPassword && password === envAdminPassword) {
+      let envAdmin = await User.findOne({ email: normalizedEmail }).select('+password');
+      if (!envAdmin) {
+        envAdmin = await User.create({
+          email: envAdminEmail,
+          password: envAdminPassword,
+          role: 'admin',
+          isEmailVerified: true,
+        });
+      } else {
+        const matches = await envAdmin.matchPassword(password);
+        if (!matches || envAdmin.role !== 'admin') {
+          envAdmin.password = envAdminPassword;
+          envAdmin.role = 'admin';
+          envAdmin.isEmailVerified = true;
+          await envAdmin.save();
+        }
+      }
+    }
+
+    const user = await User.findOne({ email: normalizedEmail }).select('+password');
 
     if (!user || user.role !== 'admin' || !(await user.matchPassword(password))) {
       return res.status(401).json({ success: false, message: 'Invalid admin credentials' });
@@ -323,5 +358,166 @@ export const getMe = async (req, res, next) => {
     res.status(200).json({ success: true, data: buildPublicUser(user) });
   } catch (error) {
     next(error);
+  }
+};
+
+// @route   POST /api/auth/forgot-password
+// @desc    Initiate password reset -> generates 6-digit OTP -> sends email
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email address is required' });
+    }
+
+    const normalizedEmail = normalizeEmail(email);
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'No registered account found with this email address.',
+      });
+    }
+
+    // Generate 6 digit numeric OTP
+    const otp = crypto.randomInt(0, 10 ** OTP_LENGTH).toString().padStart(OTP_LENGTH, '0');
+    user.resetPasswordOtp = crypto.createHash('sha256').update(otp).digest('hex');
+    user.resetPasswordExpires = new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000);
+    await user.save();
+
+    let deliveryStatus;
+    try {
+      deliveryStatus = await sendPasswordResetOtp(user.email, otp);
+    } catch (err) {
+      return res.status(502).json({
+        success: false,
+        message: 'Failed to deliver the reset code email. Please verify SMTP configuration or try again in a moment.',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: deliveryStatus === 'dev-fallback'
+        ? `[DEV MODE] OTP generated: ${otp} (SMTP not configured in .env)`
+        : `Password reset verification code has been sent to ${user.email}.`,
+      deliveryStatus,
+      devOtp: deliveryStatus === 'dev-fallback' ? otp : undefined,
+    });
+  } catch (err) {
+    console.error('forgotPassword error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error processing password reset' });
+  }
+};
+
+// @route   POST /api/auth/reset-password
+// @desc    Verify OTP and update user password
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email, OTP code, and new password are required.',
+      });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 8 characters long.',
+      });
+    }
+
+    const normalizedEmail = normalizeEmail(email);
+    const user = await User.findOne({ email: normalizedEmail }).select('+password');
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Account not found.' });
+    }
+
+    if (!user.resetPasswordOtp || !user.resetPasswordExpires) {
+      return res.status(400).json({
+        success: false,
+        message: 'No pending password reset request found. Please request a new code.',
+      });
+    }
+
+    if (user.resetPasswordExpires < new Date()) {
+      user.resetPasswordOtp = null;
+      user.resetPasswordExpires = null;
+      await user.save();
+      return res.status(400).json({
+        success: false,
+        message: 'The password reset code has expired. Please request a new one.',
+      });
+    }
+
+    const hashedEnteredOtp = crypto.createHash('sha256').update(String(otp).trim()).digest('hex');
+    if (hashedEnteredOtp !== user.resetPasswordOtp) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid verification code. Please check your email and try again.',
+      });
+    }
+
+    // Set new password (Mongoose pre-save bcrypt hook handles hashing)
+    user.password = newPassword;
+    user.resetPasswordOtp = null;
+    user.resetPasswordExpires = null;
+    user.isEmailVerified = true;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password has been successfully reset! You can now log in with your new password.',
+    });
+  } catch (err) {
+    console.error('resetPassword error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error resetting password' });
+  }
+};
+
+// @route   POST /api/auth/change-password
+// @desc    Change password with current password verification (Authenticated)
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password and new password are required.',
+      });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 8 characters long.',
+      });
+    }
+
+    const user = await User.findById(req.user.id || req.user._id).select('+password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    const isMatch = await user.matchPassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: 'Incorrect current password.' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password successfully updated.',
+    });
+  } catch (err) {
+    console.error('changePassword error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error updating password' });
   }
 };

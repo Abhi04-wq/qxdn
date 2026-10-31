@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Coins, LogOut, ShieldCheck, User, Users, Link2, MailCheck, BadgeCheck, CalendarDays, Copy, Check } from 'lucide-react';
+import {
+  Coins, LogOut, ShieldCheck, User, Users, Link2, MailCheck,
+  BadgeCheck, CalendarDays, Copy, Check, KeyRound, Lock, Sparkles
+} from 'lucide-react';
 import api from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import Toast from '../components/Toast.jsx';
+import ResetPasswordModal from '../components/ResetPasswordModal.jsx';
 
 const InfoRow = ({ Icon, label, value, mono, actions }) => (
   <div className="group relative flex items-center justify-between gap-4 rounded-2xl border border-[#D4AF37]/35 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] px-5 py-4 shadow-card-gold transition-all duration-300 hover:border-[#D4AF37]/70 hover:shadow-[0_8px_35px_rgba(212,175,55,0.2)]">
@@ -27,6 +31,7 @@ const Profile = () => {
   const [profile, setProfile] = useState(user);
   const [copied, setCopied] = useState(false);
   const [toast, setToast] = useState('');
+  const [resetModalOpen, setResetModalOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -101,7 +106,61 @@ const Profile = () => {
             </div>
           </div>
         </section>
+
+        {/* Security & Password Section */}
+        <div className="mt-8">
+          <div className="mb-4">
+            <h3 className="text-lg font-bold tracking-tight text-[#ECFDF5]">Security & Password</h3>
+            <p className="mt-0.5 text-xs text-[#91A89E]">Manage your credentials or recover your forgotten password</p>
+          </div>
+
+          <div className="rounded-2xl border border-[#D4AF37]/35 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] p-5 shadow-card-gold backdrop-blur-md">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E493B] pb-4 mb-4">
+              <div className="flex items-center gap-3.5">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#34D399]/40 bg-[#34D399]/15 text-[#34D399] shadow-inner">
+                  <KeyRound className="h-5 w-5" />
+                </span>
+                <div>
+                  <h4 className="text-sm font-bold text-white uppercase tracking-wider font-mono">Password Protection</h4>
+                  <p className="text-xs text-[#A7C4B8] mt-0.5">Secure your protocol staking account and financial withdrawals.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setResetModalOpen(true)}
+                className="flex items-center gap-2 rounded-xl border border-[#34D399]/60 bg-gradient-to-r from-[#10B981] via-[#059669] to-[#047857] px-4 py-2.5 text-xs font-bold text-white shadow-[0_0_20px_rgba(52,211,153,0.35)] transition hover:brightness-110 font-mono"
+              >
+                <KeyRound className="h-4 w-4" />
+                <span>Forgot / Reset Password (Email OTP)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setResetModalOpen(true)}
+                className="flex items-center gap-2 rounded-xl border border-[#1E493B] bg-[#071C18] px-4 py-2.5 text-xs font-bold text-[#A7B8AE] hover:text-white hover:border-[#34D399]/40 transition font-mono"
+              >
+                <Lock className="h-4 w-4 text-[#F1D78A]" />
+                <span>Change Password</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </main>
+
+      {/* Reset Password Modal */}
+      <ResetPasswordModal
+        isOpen={resetModalOpen}
+        onClose={() => setResetModalOpen(false)}
+        initialEmail={profile?.email || user?.email}
+        isAuthenticated={true}
+        onSuccess={(msg) => {
+          setToast(msg);
+          setResetModalOpen(false);
+        }}
+      />
 
       <Toast message={toast} onClose={() => setToast('')} />
     </div>

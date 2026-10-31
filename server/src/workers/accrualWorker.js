@@ -61,7 +61,7 @@ export const executeDailyAccrual = async (targetDate, trigger = 'cron', session 
     ? targetDate
     : dateKey();
 
-  const activeStakes = await StakingPosition.find({ status: 'active' }).session(session);
+  const activeStakes = await StakingPosition.find({ status: 'active' }).populate('userId').session(session);
 
   let totalProcessed = 0;
   let totalSkipped = 0;
@@ -71,6 +71,18 @@ export const executeDailyAccrual = async (targetDate, trigger = 'cron', session 
   const details = [];
 
   for (const stake of activeStakes) {
+    // Security & Moderation guard: Skip daily yield for banned or suspended accounts
+    const stakeUser = stake.userId;
+    if (!stakeUser || stakeUser.status !== 'ACTIVE') {
+      totalSkipped += 1;
+      details.push({
+        stakeId: String(stake._id),
+        skipped: true,
+        reason: `User account status is ${stakeUser?.status || 'UNKNOWN'} (not ACTIVE)`,
+      });
+      continue;
+    }
+
     // Idempotency check: this stake must never earn twice for the same date
     const accrualQuery = {
       type: 'STAKING_DAILY_ACCRUAL',

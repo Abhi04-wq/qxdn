@@ -7,28 +7,29 @@ import {
   X, Bell, SlidersHorizontal, Sparkles
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import { ADMIN_ROUTES } from '../lib/adminConfig.js';
 
 const TABS = [
-  { tab: 'overview', to: '/admin/dashboard?tab=overview', label: 'Overview', Icon: LayoutDashboard },
+  { tab: 'overview', to: `${ADMIN_ROUTES.DASHBOARD}?tab=overview`, label: 'Overview', Icon: LayoutDashboard },
   {
     tab: 'income-ledger',
-    to: '/admin/dashboard?tab=income-ledger',
+    to: `${ADMIN_ROUTES.DASHBOARD}?tab=income-ledger`,
     label: 'Income Ledger',
     Icon: ReceiptText,
     children: [
-      { category: 'all', to: '/admin/dashboard?tab=income-ledger', label: 'All Income', Icon: ReceiptText },
-      { category: 'staking', to: '/admin/dashboard?tab=income-ledger&category=staking', label: 'Staking Yield', Icon: TrendingUp },
-      { category: 'referral', to: '/admin/dashboard?tab=income-ledger&category=referral', label: 'Referral Bonus', Icon: Users },
-      { category: 'promotional', to: '/admin/dashboard?tab=income-ledger&category=promotional', label: 'Airdrop Rewards', Icon: Gift },
-      { category: 'unlocks', to: '/admin/dashboard?tab=income-ledger&category=unlocks', label: 'Capital Unlocks', Icon: KeyRound },
-      { category: 'everything', to: '/admin/dashboard?tab=income-ledger&category=everything', label: 'All Platform Txns', Icon: Layers },
+      { category: 'all', to: `${ADMIN_ROUTES.DASHBOARD}?tab=income-ledger`, label: 'All Income', Icon: ReceiptText },
+      { category: 'staking', to: `${ADMIN_ROUTES.DASHBOARD}?tab=income-ledger&category=staking`, label: 'Staking Yield', Icon: TrendingUp },
+      { category: 'referral', to: `${ADMIN_ROUTES.DASHBOARD}?tab=income-ledger&category=referral`, label: 'Referral Bonus', Icon: Users },
+      { category: 'promotional', to: `${ADMIN_ROUTES.DASHBOARD}?tab=income-ledger&category=promotional`, label: 'Airdrop Rewards', Icon: Gift },
+      { category: 'unlocks', to: `${ADMIN_ROUTES.DASHBOARD}?tab=income-ledger&category=unlocks`, label: 'Capital Unlocks', Icon: KeyRound },
+      { category: 'everything', to: `${ADMIN_ROUTES.DASHBOARD}?tab=income-ledger&category=everything`, label: 'All Platform Txns', Icon: Layers },
     ],
   },
-  { tab: 'deposits', to: '/admin/dashboard?tab=deposits', label: 'USDT Deposits', Icon: Coins },
-  { tab: 'stakes', to: '/admin/dashboard?tab=stakes', label: 'All Stakes', Icon: Lock },
-  { tab: 'members', to: '/admin/dashboard?tab=members', label: 'Members', Icon: Users },
-  { tab: 'tree', to: '/admin/dashboard?tab=tree', label: 'Member Tree', Icon: Network },
-  { tab: 'support', to: '/admin/dashboard?tab=support', label: 'Support Desk', Icon: LifeBuoy },
+  { tab: 'deposits', to: `${ADMIN_ROUTES.DASHBOARD}?tab=deposits`, label: 'USDT Deposits', Icon: Coins },
+  { tab: 'stakes', to: `${ADMIN_ROUTES.DASHBOARD}?tab=stakes`, label: 'All Stakes', Icon: Lock },
+  { tab: 'members', to: `${ADMIN_ROUTES.DASHBOARD}?tab=members`, label: 'Members', Icon: Users },
+  { tab: 'tree', to: `${ADMIN_ROUTES.DASHBOARD}?tab=tree`, label: 'Member Tree', Icon: Network },
+  { tab: 'support', to: `${ADMIN_ROUTES.DASHBOARD}?tab=support`, label: 'Support Desk', Icon: LifeBuoy },
 ];
 
 const AdminLayout = () => {
@@ -68,7 +69,7 @@ const AdminLayout = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/admin/login', { replace: true });
+    navigate(ADMIN_ROUTES.LOGIN, { replace: true });
   };
 
   const filteredTabs = useMemo(() => {
@@ -102,7 +103,7 @@ const AdminLayout = () => {
             <Menu className="h-5 w-5" />
           </button>
 
-          <NavLink to="/admin/dashboard" className="flex items-center gap-2.5 group">
+          <NavLink to={ADMIN_ROUTES.DASHBOARD} className="flex items-center gap-2.5 group">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#34D399]/40 bg-gradient-to-br from-[#0B3327] to-[#041F18] shadow-[0_0_15px_rgba(52,211,153,0.25)] group-hover:border-[#34D399] transition-all">
               <ShieldCheck className="h-5 w-5 text-[#34D399]" />
             </span>
@@ -134,7 +135,7 @@ const AdminLayout = () => {
         {/* Right: Actions + Profile */}
         <div className="flex items-center gap-2.5 sm:gap-3">
           <NavLink
-            to="/admin/dashboard?tab=support"
+            to={`${ADMIN_ROUTES.DASHBOARD}?tab=support`}
             className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-[#164336] bg-[#07241C] text-[#8EA99D] hover:border-[#34D399]/40 hover:text-white transition"
             title="Helpdesk Dispatch"
           >
@@ -143,7 +144,7 @@ const AdminLayout = () => {
           </NavLink>
 
           <NavLink
-            to="/admin/dashboard?tab=income-ledger"
+            to={`${ADMIN_ROUTES.DASHBOARD}?tab=income-ledger`}
             className="hidden sm:flex h-9 w-9 items-center justify-center rounded-xl border border-[#164336] bg-[#07241C] text-[#8EA99D] hover:border-[#34D399]/40 hover:text-white transition"
             title="Income Ledger Analytics"
           >
@@ -207,7 +208,7 @@ const AdminLayout = () => {
             {filteredTabs.map((item) => {
               const { tab, to, label, Icon, children } = item;
               const hasChildren = Boolean(children?.length);
-              const isGroupActive = location.pathname === '/admin/dashboard' && activeTab === tab;
+              const isGroupActive = location.pathname === ADMIN_ROUTES.DASHBOARD && activeTab === tab;
 
               if (!hasChildren) {
                 return (

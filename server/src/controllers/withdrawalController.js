@@ -42,6 +42,20 @@ export const withdrawInitiate = async (req, res, next) => {
       });
     }
 
+    // Security & Moderation Status Guard
+    const user = await User.findById(req.user.id).select('email status banReason');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User account not found.' });
+    }
+
+    if (user.status === 'BANNED' || user.status === 'SUSPENDED') {
+      return res.status(403).json({
+        success: false,
+        code: 'ACCOUNT_BANNED',
+        message: 'Your account has been suspended due to protocol policy violations. Contact support for assistance.',
+      });
+    }
+
     // Dynamic real-time balance verification strictly from confirmed available funds
     const balances = await deriveBalances(req.user.id);
     if (grossAmount > balances.availableBalance) {
@@ -50,11 +64,6 @@ export const withdrawInitiate = async (req, res, next) => {
         message: `Insufficient available balance. You have ${balances.availableBalance} USDT available to withdraw.`,
         data: { availableBalance: balances.availableBalance },
       });
-    }
-
-    const user = await User.findById(req.user.id).select('email');
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User account not found.' });
     }
 
     // Generate 6-digit numeric OTP
@@ -126,6 +135,16 @@ export const withdrawConfirm = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Please provide a valid 6-digit numeric OTP code.',
+      });
+    }
+
+    // Security & Moderation Status Guard
+    const user = await User.findById(req.user.id).select('status');
+    if (user && (user.status === 'BANNED' || user.status === 'SUSPENDED')) {
+      return res.status(403).json({
+        success: false,
+        code: 'ACCOUNT_BANNED',
+        message: 'Your account has been suspended due to protocol policy violations. Contact support for assistance.',
       });
     }
 

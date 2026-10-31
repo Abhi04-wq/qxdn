@@ -20,11 +20,12 @@ import ReferralsPage from './pages/Referrals.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import IncomeLedger from './pages/IncomeLedger.jsx';
 import SupportTickets from './pages/SupportTickets.jsx';
+import { ADMIN_ROUTES } from './lib/adminConfig.js';
 
 const Gate = () => {
   const { user, isLoading } = useAuth();
   if (isLoading) return null;
-  return <Navigate to={user ? (user.role === 'admin' ? '/admin/dashboard' : '/dashboard') : '/login'} replace />;
+  return <Navigate to={user ? (user.role === 'admin' ? ADMIN_ROUTES.DASHBOARD : '/dashboard') : '/login'} replace />;
 };
 
 export default function App() {
@@ -34,29 +35,29 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
-      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path={ADMIN_ROUTES.LOGIN} element={<AdminLogin />} />
       <Route element={<AdminRoute />}>
         <Route element={<AdminLayout />}>
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/withdrawals" element={<AdminWithdrawals />} />
-          <Route path="/admin/member/:userId" element={<AdminMemberDetail />} />
+          <Route path={ADMIN_ROUTES.DASHBOARD} element={<AdminDashboard />} />
+          <Route path={ADMIN_ROUTES.WITHDRAWALS} element={<AdminWithdrawals />} />
+          <Route path={ADMIN_ROUTES.MEMBER_DETAIL(':userId')} element={<AdminMemberDetail />} />
         </Route>
       </Route>
-      <Route element={<PrivateRoute />}>
-        <Route element={<MemberLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/deposit" element={<Deposit />} />
-          <Route path="/dashboard/withdraw" element={<WithdrawPage />} />
-          <Route path="/dashboard/staking" element={<StakingPage />} />
-          <Route path="/dashboard/income-ledger" element={<IncomeLedger />} />
-          <Route path="/dashboard/income-ledger/:category" element={<IncomeLedger />} />
-          <Route path="/dashboard/referrals" element={<ReferralsPage />} />
-          <Route path="/dashboard/team" element={<ReferralsPage />} />
-          <Route path="/dashboard/support" element={<SupportTickets />} />
-          <Route path="/profile" element={<Profile />} />
+        <Route element={<PrivateRoute />}>
+          <Route element={<MemberLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/deposit" element={<Deposit />} />
+            <Route path="/dashboard/withdraw" element={<WithdrawPage />} />
+            <Route path="/dashboard/staking" element={<StakingPage />} />
+            <Route path="/dashboard/income-ledger" element={<IncomeLedger />} />
+            <Route path="/dashboard/income-ledger/:category" element={<IncomeLedger />} />
+            <Route path="/dashboard/referrals" element={<ReferralsPage />} />
+            <Route path="/dashboard/team" element={<ReferralsPage />} />
+            <Route path="/dashboard/support" element={<SupportTickets />} />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
         </Route>
-      </Route>
-      <Route path="*" element={<Gate />} />
-    </Routes>
-  );
-}
+        <Route element={<Gate />} />
+      </Routes>
+    );
+  }

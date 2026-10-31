@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import Ledger from '../models/Ledger.js';
 import StakingPosition from '../models/StakingPosition.js';
 import ReleaseLog from '../models/ReleaseLog.js';
+import { generateToken } from '../middleware/authMiddleware.js';
 import { deriveBalances, ledgerHistory } from '../services/balanceService.js';
 import { getDownlineTree, getTeamBreakdown } from '../services/referralService.js';
 
@@ -135,7 +136,7 @@ export const getPlatformOverview = async (req, res, next) => {
     ]);
 
     const users = await User.find({})
-      .select('email referralCode sponsorCode role isEmailVerified createdAt')
+      .select('email referralCode sponsorCode role isEmailVerified createdAt status banReason bannedAt bannedBy depositAddress')
       .lean();
     const userMap = new Map(users.map((u) => [String(u._id), u]));
 
@@ -162,9 +163,15 @@ export const getPlatformOverview = async (req, res, next) => {
         referralCode: u.referralCode,
         sponsorCode: u.sponsorCode,
         isEmailVerified: u.isEmailVerified,
+        status: u.status || 'ACTIVE',
+        banReason: u.banReason || null,
+        bannedAt: u.bannedAt || null,
+        bannedBy: u.bannedBy || null,
+        depositAddress: u.depositAddress || null,
         createdAt: u.createdAt,
         totalDeposited: derived.get(String(u._id))?.deposits || 0,
         availableBalance: availableOf(String(u._id)),
+        staked: derived.get(String(u._id))?.staked || 0,
       }));
 
     // 4) Member join ranking (referral program health)
@@ -206,7 +213,9 @@ export const getMemberDetail = async (req, res, next) => {
   try {
     const { userId } = req.params;
 
-    const user = await User.findById(userId).select('email referralCode sponsorCode role isEmailVerified depositAddress createdAt');
+    const user = await User.findById(userId)
+      .select('email referralCode sponsorCode role isEmailVerified depositAddress createdAt status banReason bannedAt bannedBy')
+      .populate('bannedBy', 'email');
     if (!user) {
       return res.status(404).json({ success: false, message: 'Member not found' });
     }
@@ -384,6 +393,129 @@ export const getAdminIncomeLedger = async (req, res, next) => {
           promoTotals,
           count: entries.length,
         },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @route   POST /api/admin/impersonate/:userId
+// @desc    Admin-only: generate a secure session token to view & access a member's full dashboard without credentials
+export const impersonateMember = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+
+    // Strict Admin check
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Admin access required' });
+    }
+
+    const member = await User.findById(userId);
+    if (!member) {
+      return res.status(404).json({ success: false, message: 'Member not found' });
+    }
+
+    if (member.role === 'admin') {
+      return res.status(400).json({ success: false, message: 'Cannot impersonate an administrator' });
+    }
+
+    const token = generateToken(member._id);
+
+    res.status(200).json({
+      success: true,
+      message: `Impersonation session established for ${member.email}`,
+      data: {
+        _id: member._id,
+        email: member.email,
+        role: member.role,
+        referralCode: member.referralCode,
+        sponsorCode: member.sponsorCode,
+        isEmailVerified: member.isEmailVerified,
+        staking: member.staking,
+        createdAt: member.createdAt,
+        token,
+        impersonatedBy: req.user.email,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @route   PATCH /api/admin/users/:id/status (and alias /api/admin/member/:userId/status)
+// @desc    Update member moderation status: 'ACTIVE' | 'BANNED' | 'SUSPENDED'
+export const updateUserStatus = async (req, res, next) => {
+  try {
+    const targetId = req.params.id || req.params.userId;
+    const { status, reason } = req.body;
+
+    if (!status || !['ACTIVE', 'BANNED', 'SUSPENDED'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Status must be one of: 'ACTIVE', 'BANNED', 'SUSPENDED'",
+      });
+    }
+
+    const targetUser = await User.findById(targetId);
+    if (!targetUser) {
+      return res.status(404).json({ success: false, message: 'Member not found' });
+    }
+
+    // Security rule: Admin accounts cannot be frozen or suspended
+    if (targetUser.role === 'admin') {
+      return res.status(400).json({
+        success: false,
+        message: 'Administrator accounts cannot be frozen or suspended.',
+      });
+    }
+
+    const previousStatus = targetUser.status || 'ACTIVE';
+
+    if (status === 'BANNED' || status === 'SUSPENDED') {
+      const banReason = reason && typeof reason === 'string' && reason.trim()
+        ? reason.trim()
+        : 'Administrative freeze due to protocol policy violation';
+
+      targetUser.status = status;
+      targetUser.banReason = banReason;
+      targetUser.bannedAt = new Date();
+      targetUser.bannedBy = req.user.id || req.user._id;
+    } else {
+      // Lifting ban / Activating
+      targetUser.status = 'ACTIVE';
+      targetUser.banReason = null;
+      targetUser.bannedAt = null;
+      targetUser.bannedBy = null;
+    }
+
+    await targetUser.save();
+
+    // Security Audit Log
+    console.warn(
+      `[SECURITY AUDIT] Admin (${req.user?.email || req.user?.id}) updated status of member (${targetUser.email} / ${targetUser._id}) from ${previousStatus} to ${status}. Reason: ${targetUser.banReason || 'N/A'}`
+    );
+
+    const safeUser = {
+      _id: targetUser._id,
+      userId: targetUser._id,
+      email: targetUser.email,
+      role: targetUser.role,
+      status: targetUser.status,
+      banReason: targetUser.banReason,
+      bannedAt: targetUser.bannedAt,
+      bannedBy: targetUser.bannedBy,
+      referralCode: targetUser.referralCode,
+      sponsorCode: targetUser.sponsorCode,
+      isEmailVerified: targetUser.isEmailVerified,
+      createdAt: targetUser.createdAt,
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: `Member account successfully marked as ${status}.`,
+      data: {
+        user: safeUser,
       },
     });
   } catch (error) {

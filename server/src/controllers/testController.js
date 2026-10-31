@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import Ledger from '../models/Ledger.js';
 import StakingPosition from '../models/StakingPosition.js';
 import ReleaseLog from '../models/ReleaseLog.js';
+import User from '../models/User.js';
 import { deriveBalances } from '../services/balanceService.js';
 import { releasePendingRewards } from '../workers/releaseWorker.js';
 import { executeDailyAccrual } from '../workers/accrualWorker.js';
@@ -20,6 +21,16 @@ export const simulateDeposit = async (req, res, next) => {
     const targetUserId = userId || req.user.id;
     if (targetUserId !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ success: false, message: 'Cannot simulate deposits for another user' });
+    }
+
+    // Security & Moderation Status Guard
+    const targetUser = await User.findById(targetUserId).select('status');
+    if (targetUser && (targetUser.status === 'BANNED' || targetUser.status === 'SUSPENDED')) {
+      return res.status(403).json({
+        success: false,
+        code: 'ACCOUNT_BANNED',
+        message: 'Deposits are strictly prohibited for suspended or frozen accounts.',
+      });
     }
 
     const value = Number(amount);

@@ -20,7 +20,6 @@ const SUB_TABS = [
   { key: 'referral', label: 'Referral Bonus', Icon: Users, desc: 'Cascading network commissions across 10 referral tiers' },
   { key: 'promotional', label: 'Airdrop Rewards', Icon: Gift, desc: 'Promotional token allocations (SHIB, VET, WILD, DOGE)' },
   { key: 'unlocks', label: 'Capital Unlocks', Icon: KeyRound, desc: '100% completed principal returned to available balance' },
-  { key: 'everything', label: 'All Transactions', Icon: Layers, desc: 'Full append-only ledger including deposits & withdrawals' },
 ];
 
 const TYPE_CONFIG = {
@@ -95,7 +94,7 @@ export default function IncomeLedger() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const currentTab = routeCategory || 'all';
+  const currentTab = SUB_TABS.some((t) => t.key === routeCategory) ? routeCategory : 'all';
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);

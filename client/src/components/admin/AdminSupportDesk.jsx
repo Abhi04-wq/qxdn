@@ -8,6 +8,7 @@ import {
 import api from '../../lib/api.js';
 import socket from '../../lib/socket.js';
 import Toast from '../Toast.jsx';
+import { ADMIN_ROUTES } from '../../lib/adminConfig.js';
 
 const CATEGORY_MAP = {
   DEPOSIT_ISSUE: 'Deposit Issue',
@@ -635,7 +636,7 @@ export default function AdminSupportDesk() {
                   </div>
                   {selectedTicket.userId?._id && (
                     <button
-                      onClick={() => window.open(`/admin/member/${selectedTicket.userId._id}`, '_blank')}
+                      onClick={() => window.open(ADMIN_ROUTES.MEMBER_DETAIL(selectedTicket.userId._id), '_blank')}
                       className="ml-auto flex items-center gap-1 text-[11px] text-[#34D399] hover:underline"
                     >
                       <span>Member Dossier</span>

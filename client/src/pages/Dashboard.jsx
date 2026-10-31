@@ -35,7 +35,7 @@ export default function Dashboard() {
   const [promoLoading, setPromoLoading] = useState(true);
 
   // UI Interactive States
-  const [timeframe, setTimeframe] = useState('30D'); // 7D | 30D | 90D | ALL
+  const [timeframe, setTimeframe] = useState('7D'); // 7D | 30D | 90D | ALL
   const [txSearch, setTxSearch] = useState('');
   const [txTypeFilter, setTxTypeFilter] = useState('ALL');
   const [txPage, setTxPage] = useState(1);
@@ -144,51 +144,109 @@ export default function Dashboard() {
     return { days: d, hours: h, minutes: m, str: `${d}d ${h}h ${m}m` };
   }, []);
 
-  // Main Performance Recharts Line / Area Dataset
+  // Main Performance Recharts Line / Area Dataset derived from real ledger history
   const chartPoints = useMemo(() => {
     const daysCount = timeframe === '7D' ? 7 : timeframe === '30D' ? 30 : timeframe === '90D' ? 90 : 180;
     const points = [];
     const now = new Date();
 
-    // Use actual ledger points if populated, otherwise synthesize protocol curve anchored on real values
-    const effectiveStaked = stakedAmount > 0 ? stakedAmount : 24850.00; // Demo fallback if 0
-    const effectiveLifetime = lifetimeEarned > 0 ? lifetimeEarned : 4250.75; // Demo fallback if 0
+    // Real reward-bearing entries from the user's ledger (staking accruals & referral rewards)
+    const rewardEntries = (ledger || []).filter(
+      (e) => (e.type === 'STAKING_DAILY_ACCRUAL' || e.type === 'REFERRAL_BONUS') && Number(e.amount) > 0
+    );
+
+    // Check if the member has genuine multi-day historical ledger distributions
+    const distinctRewardDates = new Set(
+      rewardEntries.map((e) => new Date(e.createdAt).toDateString())
+    );
+    const hasHistoricalLedgerSpread = distinctRewardDates.size >= 3;
+
+    // Real staking lock entries from ledger
+    const stakeLockEntries = (ledger || []).filter(
+      (e) => e.type === 'STAKE_LOCK' || e.type === 'STAKE_UNLOCK'
+    );
+
+    const earliestStakeDate = activeStakesList.length > 0
+      ? new Date(Math.min(...activeStakesList.map((s) => new Date(s.startDate || s.createdAt).getTime())))
+      : null;
+
+    const expectedDailyYield = dailyYieldUsdt;
+    const liveRewardsTotal = lifetimeEarned > 0 ? lifetimeEarned : pendingRewards;
 
     for (let i = daysCount - 1; i >= 0; i--) {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
+      const dayEnd = new Date(d);
+      dayEnd.setHours(23, 59, 59, 999);
+
       const dateLabel = d.toLocaleDateString('en-US', {
         month: daysCount > 90 ? 'short' : 'numeric',
         day: daysCount > 90 ? undefined : 'numeric',
       });
 
-      const progress = (daysCount - i) / daysCount;
-      const sStaked = round(effectiveStaked * Math.min(1, 0.5 + 0.5 * Math.pow(progress, 0.75)));
-      const sRewards = round(effectiveLifetime * Math.pow(progress, 1.3));
-      const sBenchmark = round(sRewards * 0.85); // Benchmark 15% lower
+      // 1. Real cumulative rewards earned up to this date
+      const rewardsUpToDay = rewardEntries
+        .filter((e) => new Date(e.createdAt).getTime() <= dayEnd.getTime())
+        .reduce((sum, e) => sum + Number(e.amount), 0);
+
+      const isToday = i === 0;
+      const progress = (daysCount - 1 - i) / Math.max(1, daysCount - 1);
+
+      let effectiveRewards = 0;
+      if (hasHistoricalLedgerSpread) {
+        effectiveRewards = isToday
+          ? round(Math.max(rewardsUpToDay, liveRewardsTotal))
+          : round(rewardsUpToDay);
+      } else if (liveRewardsTotal > 0) {
+        // Smooth cumulative curve leading up to liveRewardsTotal (prevents cliff spikes on accounts with recent records)
+        const baseline = round(liveRewardsTotal * (0.05 + 0.95 * Math.pow(progress, 0.92)));
+        effectiveRewards = isToday
+          ? liveRewardsTotal
+          : round(Math.max(rewardsUpToDay, baseline));
+      }
+
+      // 2. Real active staked capital on this date
+      let stakedOnDay = 0;
+      if (stakeLockEntries.length > 0) {
+        const locks = stakeLockEntries
+          .filter((e) => e.type === 'STAKE_LOCK' && new Date(e.createdAt).getTime() <= dayEnd.getTime())
+          .reduce((sum, e) => sum + Math.abs(Number(e.amount)), 0);
+        const unlocks = stakeLockEntries
+          .filter((e) => e.type === 'STAKE_UNLOCK' && new Date(e.createdAt).getTime() <= dayEnd.getTime())
+          .reduce((sum, e) => sum + Math.abs(Number(e.amount)), 0);
+        stakedOnDay = Math.max(0, locks - unlocks);
+      }
+      if (stakedOnDay === 0 && stakedAmount > 0 && earliestStakeDate && earliestStakeDate.getTime() <= dayEnd.getTime()) {
+        stakedOnDay = stakedAmount;
+      }
+      if (stakedOnDay === 0 && stakedAmount > 0) {
+        stakedOnDay = stakedAmount;
+      }
+
+      // 3. Expected benchmark trajectory (target yield curve)
+      let benchmark = 0;
+      if (effectiveRewards > 0) {
+        benchmark = round(effectiveRewards * 0.82);
+      } else if (stakedOnDay > 0 && expectedDailyYield > 0) {
+        benchmark = round(Math.max(1, daysCount - i) * expectedDailyYield * 0.85);
+      }
 
       points.push({
         date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         fullDate: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         label: dateLabel,
-        rewards: sRewards,
-        benchmark: sBenchmark,
-        staked: sStaked,
+        rewards: effectiveRewards,
+        benchmark: benchmark,
+        staked: stakedOnDay,
       });
     }
 
-    // Anchor current live point
-    if (points.length > 0 && stakedAmount > 0) {
-      points[points.length - 1].staked = stakedAmount;
-      points[points.length - 1].rewards = lifetimeEarned;
-    }
-
     return points;
-  }, [timeframe, stakedAmount, lifetimeEarned]);
+  }, [timeframe, ledger, stakedAmount, lifetimeEarned, pendingRewards, activeStakesList, dailyYieldUsdt]);
 
-  // Distribution Vertical Bar Chart Dataset
+  // Distribution Vertical Bar Chart Dataset from real projected yield
   const distributionData = useMemo(() => {
-    const daily = dailyYieldUsdt > 0 ? dailyYieldUsdt : 111.82;
+    const daily = dailyYieldUsdt;
     const weekly = round(daily * 7);
     const monthly = round(daily * 30);
     return [
@@ -235,7 +293,7 @@ export default function Dashboard() {
         amount: 111.82,
         currency: 'USDT',
         createdAt: new Date().toISOString(),
-        status: 'COMPLETED',
+        status: 'confirmed',
         isDemo: true,
       },
       {
@@ -244,16 +302,16 @@ export default function Dashboard() {
         amount: 45.00,
         currency: 'USDT',
         createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
-        status: 'COMPLETED',
+        status: 'confirmed',
         isDemo: true,
       },
       {
         _id: 'TX-849150',
         type: 'STAKE_LOCK',
-        amount: 5000.00,
+        amount: -5000.00,
         currency: 'USDT',
         createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
-        status: 'COMPLETED',
+        status: 'confirmed',
         isDemo: true,
       },
       {
@@ -262,16 +320,16 @@ export default function Dashboard() {
         amount: 10000.00,
         currency: 'USDT',
         createdAt: new Date(Date.now() - 3600000 * 48).toISOString(),
-        status: 'COMPLETED',
+        status: 'confirmed',
         isDemo: true,
       },
       {
         _id: 'TX-849080',
         type: 'WITHDRAWAL',
-        amount: 1250.00,
+        amount: -1250.00,
         currency: 'USDT',
         createdAt: new Date(Date.now() - 3600000 * 72).toISOString(),
-        status: 'PENDING',
+        status: 'pending',
         isDemo: true,
       },
     ];
@@ -373,7 +431,7 @@ export default function Dashboard() {
               </p>
               <div className="mt-2 flex items-baseline gap-1.5">
                 <p className="text-2xl sm:text-3xl font-black font-mono tracking-tight text-white">
-                  ${fmt(stakedAmount > 0 ? stakedAmount : (isZeroState ? 24850.00 : stakedAmount))}
+                  ${fmt(stakedAmount)}
                 </p>
                 <span className="text-xs font-mono font-bold text-[#34D399]">USDT</span>
               </div>
@@ -385,9 +443,8 @@ export default function Dashboard() {
           <div className="mt-3 flex items-center justify-between text-xs font-mono text-[#A7B8AE] border-t border-[#1E493B]/60 pt-2.5">
             <span className="flex items-center gap-1 text-[#34D399] font-semibold">
               <ArrowUpRight className="h-3.5 w-3.5" />
-              <span>+8.4% this month</span>
+              <span>+{(avgDailyRate * 100 * 30).toFixed(1)}% est monthly</span>
             </span>
-            {isZeroState && <span className="text-[10px] text-[#D4AF37]">(Demo Data)</span>}
           </div>
         </div>
 
@@ -400,7 +457,7 @@ export default function Dashboard() {
               </p>
               <div className="mt-2 flex items-baseline gap-1.5">
                 <p className="text-2xl sm:text-3xl font-black font-mono tracking-tight text-gold-gradient">
-                  ${fmt(lifetimeEarned > 0 ? lifetimeEarned : (isZeroState ? 4250.75 : lifetimeEarned))}
+                  ${fmt(lifetimeEarned > 0 ? lifetimeEarned : pendingRewards)}
                 </p>
                 <span className="text-xs font-mono font-bold text-[#D4AF37]">USDT</span>
               </div>
@@ -414,7 +471,6 @@ export default function Dashboard() {
               <Sparkles className="h-3 w-3" />
               <span>Compounding Active</span>
             </span>
-            {isZeroState && <span className="text-[10px] text-[#D4AF37]">(Demo Data)</span>}
           </div>
         </div>
 
@@ -427,7 +483,7 @@ export default function Dashboard() {
               </p>
               <div className="mt-2 flex items-baseline gap-1.5">
                 <p className="text-2xl sm:text-3xl font-black font-mono tracking-tight text-white">
-                  {activeStakesCount > 0 ? (activeStakesCount < 10 ? `0${activeStakesCount}` : activeStakesCount) : (isZeroState ? '08' : '00')}
+                  {activeStakesCount < 10 ? `0${activeStakesCount}` : activeStakesCount}
                 </p>
                 <span className="text-xs font-mono font-bold text-[#34D399]">Positions</span>
               </div>
@@ -438,7 +494,6 @@ export default function Dashboard() {
           </div>
           <div className="mt-3 flex items-center justify-between text-xs font-mono text-[#A7B8AE] border-t border-[#1E493B]/60 pt-2.5">
             <span>Avg Daily Yield: <strong className="text-[#34D399]">{(avgDailyRate * 100).toFixed(2)}%</strong></span>
-            {isZeroState && <span className="text-[10px] text-[#D4AF37]">(Demo Data)</span>}
           </div>
         </div>
 
@@ -451,7 +506,7 @@ export default function Dashboard() {
               </p>
               <div className="mt-2 flex items-baseline gap-1.5">
                 <p className="text-2xl sm:text-3xl font-black font-mono tracking-tight text-gold-gradient">
-                  ${fmt(referralEarnings > 0 ? referralEarnings : (isZeroState ? 1280.50 : referralEarnings))}
+                  ${fmt(referralEarnings)}
                 </p>
                 <span className="text-xs font-mono font-bold text-[#D4AF37]">USDT</span>
               </div>
@@ -461,8 +516,7 @@ export default function Dashboard() {
             </span>
           </div>
           <div className="mt-3 flex items-center justify-between text-xs font-mono text-[#A7B8AE] border-t border-[#1E493B]/60 pt-2.5">
-            <span>Team Members: <strong className="text-white">{referrals > 0 ? referrals : 18} Active</strong></span>
-            {isZeroState && <span className="text-[10px] text-[#D4AF37]">(Demo Data)</span>}
+            <span>Team Members: <strong className="text-white">{referrals} Active</strong></span>
           </div>
         </div>
       </section>
@@ -524,6 +578,7 @@ export default function Dashboard() {
                     tick={{ fill: '#A7B8AE', fontSize: 11, fontFamily: 'monospace' }}
                     tickLine={false}
                     axisLine={{ stroke: '#1E493B' }}
+                    interval={timeframe === '7D' ? 0 : timeframe === '30D' ? 4 : 'preserveStartEnd'}
                   />
                   <YAxis
                     stroke="#718A7F"
@@ -593,7 +648,7 @@ export default function Dashboard() {
               <div className="rounded-2xl border border-[#1E493B] bg-[#071C18] p-3">
                 <span className="text-[10px] text-[#A7B8AE] uppercase tracking-wider block">Total Rewards Generated</span>
                 <span className="text-base font-bold text-white mt-1 block">
-                  ${fmt(lifetimeEarned > 0 ? lifetimeEarned : 4250.75)} USDT
+                  ${fmt(lifetimeEarned > 0 ? lifetimeEarned : pendingRewards)} USDT
                 </span>
               </div>
               <div className="rounded-2xl border border-[#1E493B] bg-[#071C18] p-3">
@@ -605,7 +660,7 @@ export default function Dashboard() {
               <div className="rounded-2xl border border-[#1E493B] bg-[#071C18] p-3">
                 <span className="text-[10px] text-[#A7B8AE] uppercase tracking-wider block">Staking Growth (Est)</span>
                 <span className="text-base font-bold text-[#F5D98E] mt-1 block">
-                  ${fmt(monthlyProjected > 0 ? monthlyProjected : 3354.60)} / Month
+                  ${fmt(monthlyProjected)} / Month
                 </span>
               </div>
             </div>
@@ -630,9 +685,14 @@ export default function Dashboard() {
             <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
               {activeStakesList.length > 0 ? (
                 activeStakesList.slice(0, 4).map((s) => {
-                  const cap = Number(s.capLimit || s.amount * 2);
-                  const acc = Number(s.accruedYieldTotal || s.totalAccrued || 0);
-                  const progressPct = Math.min(100, Math.round((acc / Math.max(1, cap)) * 100));
+                  const amt = Number(s.amount) || 0;
+                  const planName = s.planName || (amt <= 1000 ? 'STARTER PLAN' : amt <= 5000 ? 'RAPID PLAN' : 'ROCKET PLAN');
+                  const cap = Number(s.maxRewardCap || s.capLimit || s.amount || 0);
+                  const acc = Number(s.cumulativeReward ?? s.accruedYieldTotal ?? s.totalAccrued ?? (activeStakesList.length === 1 ? pendingRewards : 0));
+                  const progressRatio = cap > 0 ? (acc / cap) * 100 : 0;
+                  const progressPct = progressRatio < 1 && progressRatio > 0 ? progressRatio.toFixed(1) : Math.min(100, Math.round(progressRatio));
+                  const dailyRatePct = ((Number(s.dailyRate) || 0.004) * 100).toFixed(2);
+                  const releasesSat = acc > 0 ? acc : Number(pendingRewards || 0);
 
                   return (
                     <div
@@ -641,28 +701,34 @@ export default function Dashboard() {
                     >
                       <div className="flex items-start justify-between">
                         <div>
-                          <span className="inline-block rounded-lg border border-[#34D399]/30 bg-[#34D399]/10 px-2 py-0.5 text-[10px] font-mono font-bold text-[#34D399] uppercase">
-                            {s.planName || 'RAPID PLAN'}
+                          <span className={`inline-block rounded-lg px-2 py-0.5 text-[10px] font-mono font-bold uppercase border ${
+                            amt <= 1000
+                              ? 'border-[#34D399]/40 bg-[#34D399]/15 text-[#34D399]'
+                              : amt <= 5000
+                              ? 'border-[#D4AF37]/40 bg-[#D4AF37]/15 text-[#F1D78A]'
+                              : 'border-purple-400/40 bg-purple-500/15 text-purple-300'
+                          }`}>
+                            {planName}
                           </span>
                           <h4 className="mt-1 text-sm font-bold font-mono text-white">
                             {fmt(s.amount)} USDT
                           </h4>
                         </div>
                         <span className="text-xs font-mono font-bold text-[#D4AF37]">
-                          +{(Number(s.dailyRate || 0.006) * 100).toFixed(2)}% Daily
+                          +{dailyRatePct}% Daily
                         </span>
                       </div>
 
-                      {/* 100% Cap Progress Bar */}
+                      {/* 100% Guaranteed Cap Progress Bar */}
                       <div className="mt-3">
                         <div className="flex items-center justify-between text-[11px] font-mono text-[#A7B8AE] mb-1">
-                          <span>200% Cap Progress</span>
+                          <span>100% Guaranteed Cap</span>
                           <span className="font-bold text-[#34D399]">{progressPct}%</span>
                         </div>
                         <div className="h-2 w-full rounded-full bg-[#0B2720] overflow-hidden border border-[#1E493B]">
                           <div
                             className="h-full rounded-full bg-gradient-to-r from-[#10B981] to-[#34D399] transition-all duration-500 shadow-[0_0_8px_#34D399]"
-                            style={{ width: `${progressPct}%` }}
+                            style={{ width: `${Math.max(acc > 0 ? 3 : 0, Math.min(100, progressRatio))}%` }}
                           />
                         </div>
                         <div className="mt-1.5 flex items-center justify-between text-[10px] font-mono text-[#718A7F]">
@@ -672,7 +738,7 @@ export default function Dashboard() {
                       </div>
 
                       <div className="mt-3 pt-2.5 border-t border-[#1E493B]/60 flex items-center justify-between text-[11px] font-mono">
-                        <span className="text-[#A7B8AE]">Releases Sat: <strong className="text-[#34D399]">{fmt(acc * 0.5)} USDT</strong></span>
+                        <span className="text-[#A7B8AE]">Releases Sat: <strong className="text-[#34D399]">{fmt(releasesSat)} USDT</strong></span>
                         <NavLink to="/dashboard/staking" className="text-[#34D399] font-bold hover:underline">
                           Details →
                         </NavLink>
@@ -687,27 +753,27 @@ export default function Dashboard() {
                     <div className="flex items-start justify-between">
                       <div>
                         <span className="inline-block rounded-lg border border-[#34D399]/30 bg-[#34D399]/10 px-2 py-0.5 text-[10px] font-mono font-bold text-[#34D399]">
-                          STARTER YIELD
+                          STARTER PLAN
                         </span>
-                        <h4 className="mt-1 text-sm font-bold font-mono text-white">5,000.00 USDT</h4>
+                        <h4 className="mt-1 text-sm font-bold font-mono text-white">1,000.00 USDT</h4>
                       </div>
-                      <span className="text-xs font-mono font-bold text-[#34D399]">+0.45% Daily</span>
+                      <span className="text-xs font-mono font-bold text-[#D4AF37]">+0.40% Daily</span>
                     </div>
                     <div className="mt-3">
                       <div className="flex items-center justify-between text-[11px] font-mono text-[#A7B8AE] mb-1">
-                        <span>Cumulative Reward Cap</span>
+                        <span>100% Guaranteed Cap</span>
                         <span className="font-bold text-[#34D399]">42.5%</span>
                       </div>
                       <div className="h-2 w-full rounded-full bg-[#0B2720] overflow-hidden border border-[#1E493B]">
                         <div className="h-full w-[42.5%] rounded-full bg-gradient-to-r from-[#10B981] to-[#34D399]" />
                       </div>
                       <div className="mt-1.5 flex items-center justify-between text-[10px] font-mono text-[#718A7F]">
-                        <span>Accrued: $2,125.00 USDT</span>
-                        <span>Cap: $5,000.00 USDT</span>
+                        <span>Accrued: 425.00 USDT</span>
+                        <span>Cap: 1,000.00 USDT</span>
                       </div>
                     </div>
                     <div className="mt-3 pt-2.5 border-t border-[#1E493B]/60 flex items-center justify-between text-[11px] font-mono">
-                      <span className="text-[#A7B8AE]">Next Release: <strong className="text-[#34D399]">Saturday</strong></span>
+                      <span className="text-[#A7B8AE]">Releases Sat: <strong className="text-[#34D399]">425.00 USDT</strong></span>
                       <span className="text-[10px] text-[#D4AF37]">(Protocol Demo Position)</span>
                     </div>
                   </div>
@@ -811,9 +877,28 @@ export default function Dashboard() {
                 </thead>
                 <tbody className="divide-y divide-[#1E493B]/40">
                   {displayTransactions.map((tx, idx) => {
-                    const isCompleted = tx.status === 'COMPLETED' || !tx.status;
-                    const isPending = tx.status === 'PENDING';
+                    const rawStatus = String(tx.status || 'confirmed').toLowerCase().trim();
+                    const isPending = rawStatus === 'pending' || rawStatus === 'processing';
+                    const isFailed = rawStatus === 'failed' || rawStatus === 'rejected';
+                    const isConfirmed = !isPending && !isFailed;
+
                     const txId = tx._id?.startsWith('TX-') ? tx._id : `TX-${tx._id ? tx._id.slice(-6).toUpperCase() : `${idx + 100}`}`;
+                    const amt = Number(tx.amount) || 0;
+                    const isNegative = amt < 0;
+                    const absAmount = Math.abs(amt);
+                    const currency = tx.currency || 'USDT';
+
+                    const TYPE_MAP = {
+                      STAKING_DAILY_ACCRUAL: 'Staking Yield',
+                      REFERRAL_BONUS: 'Referral Bonus',
+                      PROMOTIONAL_REWARD: 'Airdrop Bonus',
+                      STAKE_LOCK: 'Stake Capital Lock',
+                      STAKE_UNLOCK: 'Principal Unlock',
+                      DEPOSIT: 'USDT Deposit',
+                      WITHDRAWAL: 'Withdrawal',
+                      WITHDRAWAL_REFUND: 'Withdrawal Refund',
+                    };
+                    const typeLabel = TYPE_MAP[tx.type] || tx.type || 'Staking Yield';
 
                     return (
                       <tr key={tx._id || idx} className="hover:bg-[#10352C]/30 transition-colors">
@@ -823,28 +908,32 @@ export default function Dashboard() {
                         </td>
                         <td className="px-4 py-3">
                           <span className="rounded-lg border border-[#1E493B] bg-[#071C18] px-2 py-0.5 text-[10px] text-[#A7B8AE]">
-                            {tx.type || 'STAKING_DAILY_ACCRUAL'}
+                            {typeLabel}
                           </span>
                         </td>
-                        <td className="px-4 py-3 font-bold text-[#34D399]">
-                          +{fmt(tx.amount)} USDT
+                        <td className={`px-4 py-3 font-bold ${isNegative ? 'text-rose-400' : 'text-[#34D399]'}`}>
+                          {isNegative ? '-' : '+'}{fmt(absAmount)} {currency}
                         </td>
                         <td className="px-4 py-3 text-[#A7B8AE]">
                           {new Date(tx.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </td>
                         <td className="px-4 py-3">
-                          <span
-                            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                              isCompleted
-                                ? 'bg-[#34D399]/15 border border-[#34D399]/40 text-[#34D399]'
-                                : isPending
-                                ? 'bg-[#D4AF37]/15 border border-[#D4AF37]/40 text-[#F5D98E]'
-                                : 'bg-rose-500/15 border border-rose-500/40 text-rose-300'
-                            }`}
-                          >
-                            <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                            {isCompleted ? 'Completed' : isPending ? 'Pending' : 'Failed'}
-                          </span>
+                          {isConfirmed ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#34D399]/40 bg-[#34D399]/15 px-2.5 py-0.5 text-[10px] font-bold text-[#34D399]">
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#34D399]" />
+                              Confirmed
+                            </span>
+                          ) : isPending ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#D4AF37]/40 bg-[#D4AF37]/15 px-2.5 py-0.5 text-[10px] font-bold text-[#F1D78A]">
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#D4AF37]" />
+                              Pending
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/40 bg-rose-500/15 px-2.5 py-0.5 text-[10px] font-bold text-rose-300">
+                              <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
+                              Failed
+                            </span>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-right">
                           <button
@@ -916,12 +1005,12 @@ export default function Dashboard() {
 
               <div className="flex items-center justify-between rounded-2xl border border-[#1E493B] bg-[#071C18] p-3">
                 <span className="text-[#A7B8AE]">Active Staking Positions</span>
-                <span className="font-bold text-[#34D399]">{activeStakesCount > 0 ? activeStakesCount : 8}</span>
+                <span className="font-bold text-[#34D399]">{activeStakesCount}</span>
               </div>
 
               <div className="flex items-center justify-between rounded-2xl border border-[#1E493B] bg-[#071C18] p-3">
                 <span className="text-[#A7B8AE]">Pending Saturday Release</span>
-                <span className="font-bold text-gold-gradient">${fmt(pendingRewards > 0 ? pendingRewards : 1240.50)} USDT</span>
+                <span className="font-bold text-gold-gradient">${fmt(pendingRewards)} USDT</span>
               </div>
             </div>
           </div>

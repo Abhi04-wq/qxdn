@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import api from '../../lib/api.js';
 import Toast from '../Toast.jsx';
+import { ADMIN_ROUTES } from '../../lib/adminConfig.js';
 
 const round = (n) => Math.round((Number(n) || 0) * 1e6) / 1e6;
 const fmt = (n) => round(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 });
@@ -694,7 +695,7 @@ export default function AdminIncomeLedger() {
                       {/* Member Details */}
                       <td className="px-5 py-3.5">
                         <Link
-                          to={`/admin/member/${entry.userId}`}
+                          to={ADMIN_ROUTES.MEMBER_DETAIL(entry.userId)}
                           className="font-bold text-[#34D399] hover:underline flex items-center gap-1"
                           title="View Member Detail"
                         >

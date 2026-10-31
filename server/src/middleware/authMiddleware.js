@@ -19,13 +19,39 @@ export const protect = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id).select('role email');
+    const user = await User.findById(decoded.id).select('role email status banReason');
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'User not found' });
+    }
+
     req.user = {
       id: decoded.id,
       _id: decoded.id,
-      role: user?.role || 'member',
-      email: user?.email,
+      role: user.role || 'member',
+      email: user.email,
+      status: user.status || 'ACTIVE',
+      banReason: user.banReason || null,
     };
+
+    // Account Moderation & Security Freeze Guard
+    if (user.role !== 'admin' && (user.status === 'BANNED' || user.status === 'SUSPENDED')) {
+      const path = req.originalUrl || req.url || '';
+      const isAllowedTicketRoute = path.includes('/tickets');
+      const isReadOnlyLedger = req.method === 'GET' && (path.includes('/ledger/balance') || path.includes('/ledger/income'));
+
+      if (!isAllowedTicketRoute && !isReadOnlyLedger) {
+        return res.status(403).json({
+          success: false,
+          code: 'ACCOUNT_BANNED',
+          message: 'Your account has been suspended due to protocol policy violations. Contact support for assistance.',
+          data: {
+            status: user.status,
+            reason: user.banReason || 'Administrative freeze',
+          },
+        });
+      }
+    }
+
     next();
   } catch {
     return res.status(401).json({ success: false, message: 'Not authorized, token failed' });

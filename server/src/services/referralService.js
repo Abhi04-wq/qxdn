@@ -59,7 +59,7 @@ export const getUpline = async (userId, maxLevel = MAX_LEVEL) => {
 
   while (sponsorCode && level <= maxLevel) {
     const sponsor = await User.findOne({ referralCode: sponsorCode })
-      .select('referralCode sponsorCode role isEmailVerified email')
+      .select('referralCode sponsorCode role isEmailVerified email status')
       .lean();
     if (!sponsor) break;
 
@@ -95,6 +95,16 @@ export const distributeReferralCommissions = async (userId, stakeAmount, stakeId
   let totalCommissions = 0;
 
   for (const { level, user } of upline) {
+    // Security & Moderation guard: Bypass referral commissions to banned or suspended sponsors
+    if (user.status === 'BANNED' || user.status === 'SUSPENDED') {
+      skipped.push({
+        level,
+        userId: String(user._id),
+        reason: `Upline sponsor account status is ${user.status} (bypassed)`,
+      });
+      continue;
+    }
+
     if (!isQualifiedSponsor(user)) {
       skipped.push({ level, userId: String(user._id), reason: 'Sponsor not qualified' });
       continue;

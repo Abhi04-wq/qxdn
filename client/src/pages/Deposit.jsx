@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Coins, LogOut, ShieldCheck, UserCircle, Link2, Copy, Check, Wallet, AlertCircle,
-  QrCode, Loader2, X, FlaskConical, History, ExternalLink, CheckCircle2, ArrowRight, Network,
+  Loader2, X, FlaskConical, History, ExternalLink, CheckCircle2, ArrowRight, Network,
 } from 'lucide-react';
 import api from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -93,23 +93,23 @@ const Deposit = () => {
           </div>
         ) : (
           <>
-            <section className="grid grid-cols-1 gap-4 lg:grid-cols-5">
-              <div className="rounded-2xl border border-[#D4AF37]/35 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] p-6 shadow-card-gold transition-all duration-300 hover:border-[#D4AF37]/60 lg:col-span-3">
+            <section className="w-full">
+              <div className="rounded-2xl border border-[#D4AF37]/35 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] p-6 shadow-card-gold transition-all duration-300 hover:border-[#D4AF37]/60">
                 <div className="flex items-center gap-2">
                   <Wallet className="h-4 w-4 text-[#D4AF37]" />
                   <h3 className="text-sm font-semibold font-mono text-[#F1D78A]">Your Permanent Deposit Address</h3>
                 </div>
-                <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-[#1E493B] bg-[#0B2720] px-4 py-3">
+                <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[#1E493B] bg-[#0B2720] px-4 py-3">
                   <p className="truncate font-mono text-sm text-[#F1D78A]">{wallet?.depositAddress}</p>
                   <button
                     onClick={() => copyText(wallet.depositAddress, 'addr', 'Deposit address copied')}
-                    className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[#D4AF37]/40 bg-[#D4AF37]/15 px-3 py-1.5 text-xs font-mono font-bold text-[#F1D78A] transition hover:bg-[#D4AF37]/25"
+                    className="flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-[#D4AF37]/40 bg-[#D4AF37]/15 px-3.5 py-1.5 text-xs font-mono font-bold text-[#F1D78A] transition hover:bg-[#D4AF37]/25"
                   >
                     {copied === 'addr' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                     {copied === 'addr' ? 'Copied' : 'Copy Address'}
                   </button>
                 </div>
-                <ul className="mt-4 space-y-2 font-mono">
+                <ul className="mt-4 flex flex-wrap items-center gap-4 sm:gap-6 font-mono">
                   {[wallet?.network, `Minimum Deposit: 100 USDT`, 'Requires 15 Confirmations'].map((t) => (
                     <li key={t} className="flex items-center gap-2 text-xs text-[#A7C4B8]">
                       <Network className="h-3 w-3 text-[#D4AF37]" />
@@ -117,13 +117,6 @@ const Deposit = () => {
                     </li>
                   ))}
                 </ul>
-              </div>
-
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-[#D4AF37]/35 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] p-6 shadow-card-gold transition-all duration-300 hover:border-[#D4AF37]/60 lg:col-span-2">
-                <div className="rounded-xl border border-dashed border-[#D4AF37]/30 bg-[#0B2720] p-6">
-                  <QrCode className="h-24 w-24 text-[#F1D78A]" />
-                </div>
-                <p className="mt-3 text-xs font-mono text-[#A7C4B8]">QR Code for Mobile Wallet Scanning</p>
               </div>
             </section>
 

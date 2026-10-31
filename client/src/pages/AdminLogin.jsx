@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Loader2, Lock, Mail, AlertCircle, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import { ADMIN_ROUTES } from '../lib/adminConfig.js';
 
 const VALIDATION = {
   email: (v) => (!v ? 'Email is required' : !/^\S+@\S+\.\S+$/.test(v) ? 'Enter a valid email address' : ''),
@@ -34,7 +35,7 @@ const AdminLogin = () => {
     setSubmitting(true);
     try {
       await loginAdmin(form.email, form.password);
-      navigate(location.state?.from?.pathname || '/admin/dashboard', { replace: true });
+      navigate(location.state?.from?.pathname || ADMIN_ROUTES.DASHBOARD, { replace: true });
     } catch (error) {
       setServerError(error.response?.data?.message || 'Unable to sign in. Please try again.');
     } finally {
@@ -97,14 +98,21 @@ const AdminLogin = () => {
               {errors.password && <p className="mt-1.5 text-xs text-red-400">{errors.password}</p>}
             </div>
 
-            <button type="submit" disabled={submitting} className="flex w-full items-center justify-center gap-2 rounded-xl bg-gold-gradient py-2.5 text-sm font-bold text-[#071C18] transition hover:brightness-110 hover:shadow-[0_0_25px_rgba(212,175,55,0.35)] disabled:cursor-not-allowed disabled:opacity-60">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#D4AF37]/60 bg-gradient-to-r from-[#D4AF37] via-[#F5D98E] to-[#D4AF37] py-2.5 text-sm font-bold font-mono text-[#020B08] shadow-[0_0_25px_rgba(212,175,55,0.4)] transition-all hover:brightness-110 hover:shadow-[0_0_35px_rgba(212,175,55,0.6)] disabled:cursor-not-allowed disabled:opacity-60"
+            >
               {submitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin text-[#071C18]" />
-                  Verifying...
+                  <Loader2 className="h-4 w-4 animate-spin text-[#020B08]" />
+                  <span>Verifying...</span>
                 </>
               ) : (
-                'Sign In to Admin'
+                <>
+                  <ShieldCheck className="h-4 w-4 text-[#020B08]" />
+                  <span>Sign In to Admin</span>
+                </>
               )}
             </button>
           </form>

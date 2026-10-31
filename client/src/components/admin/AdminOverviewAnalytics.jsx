@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ADMIN_ROUTES } from '../../lib/adminConfig.js';
 import {
   TrendingUp, Database, Coins, Wallet, Users, UserCheck, ShieldCheck,
   ArrowUpRight, ArrowDownRight, Layers, Award, Sparkles, Activity,
@@ -225,7 +226,7 @@ export default function AdminOverviewAnalytics({
             <span>Refresh</span>
           </button>
           <button
-            onClick={() => navigate('/admin/dashboard?tab=income-ledger')}
+            onClick={() => navigate(`${ADMIN_ROUTES.DASHBOARD}?tab=income-ledger`)}
             className="flex items-center gap-1.5 rounded-xl border border-[#D4AF37]/50 bg-[#D4AF37]/15 px-3.5 py-2 text-xs font-mono font-bold text-[#F1D78A] hover:bg-[#D4AF37]/25 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition"
           >
             <Layers className="h-3.5 w-3.5 text-[#D4AF37]" />
@@ -667,7 +668,7 @@ export default function AdminOverviewAnalytics({
               No unbacked obligations
             </span>
             <button
-              onClick={() => navigate('/admin/withdrawals')}
+              onClick={() => navigate(ADMIN_ROUTES.WITHDRAWALS)}
               className="text-[#34D399] hover:underline flex items-center gap-1"
             >
               <span>Manage Payouts</span>
@@ -689,7 +690,7 @@ export default function AdminOverviewAnalytics({
               </h3>
             </div>
             <button
-              onClick={() => navigate('/admin/dashboard?tab=deposits')}
+              onClick={() => navigate(`${ADMIN_ROUTES.DASHBOARD}?tab=deposits`)}
               className="text-xs font-mono text-[#34D399] hover:underline flex items-center gap-1"
             >
               <span>View All Deposits</span>
@@ -717,7 +718,7 @@ export default function AdminOverviewAnalytics({
                     <tr
                       key={m.userId}
                       className="text-[#ECFDF5] hover:bg-[#164B3A]/30 transition group cursor-pointer"
-                      onClick={() => navigate(`/admin/member/${m.userId}`)}
+                      onClick={() => navigate(ADMIN_ROUTES.MEMBER_DETAIL(m.userId))}
                     >
                       <td className="py-3">
                         <span
@@ -825,7 +826,7 @@ export default function AdminOverviewAnalytics({
       {/* 6. Quick Administrative Shortcuts Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
         <button
-          onClick={() => navigate('/admin/dashboard?tab=income-ledger')}
+          onClick={() => navigate(`${ADMIN_ROUTES.DASHBOARD}?tab=income-ledger`)}
           className="group flex items-center justify-between rounded-2xl border border-[#D4AF37]/40 bg-[#0B2720] p-4 text-left transition hover:border-[#D4AF37] hover:bg-[#10352C] hover:shadow-card-gold"
         >
           <div>
@@ -836,7 +837,7 @@ export default function AdminOverviewAnalytics({
         </button>
 
         <button
-          onClick={() => navigate('/admin/dashboard?tab=stakes')}
+          onClick={() => navigate(`${ADMIN_ROUTES.DASHBOARD}?tab=stakes`)}
           className="group flex items-center justify-between rounded-2xl border border-[#1E493B] bg-[#0B2720] p-4 text-left transition hover:border-[#34D399]/60 hover:bg-[#10352C]"
         >
           <div>
@@ -847,7 +848,7 @@ export default function AdminOverviewAnalytics({
         </button>
 
         <button
-          onClick={() => navigate('/admin/withdrawals')}
+          onClick={() => navigate(ADMIN_ROUTES.WITHDRAWALS)}
           className="group flex items-center justify-between rounded-2xl border border-[#1E493B] bg-[#0B2720] p-4 text-left transition hover:border-[#34D399]/60 hover:bg-[#10352C]"
         >
           <div>
@@ -858,7 +859,7 @@ export default function AdminOverviewAnalytics({
         </button>
 
         <button
-          onClick={() => navigate('/admin/dashboard?tab=tree')}
+          onClick={() => navigate(`${ADMIN_ROUTES.DASHBOARD}?tab=tree`)}
           className="group flex items-center justify-between rounded-2xl border border-[#1E493B] bg-[#0B2720] p-4 text-left transition hover:border-[#34D399]/60 hover:bg-[#10352C]"
         >
           <div>

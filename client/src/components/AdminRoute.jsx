@@ -2,6 +2,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Loader2, ShieldAlert } from 'lucide-react';
 import DashboardLoginLink from './DashboardLoginLink.jsx';
+import { ADMIN_ROUTES } from '../lib/adminConfig.js';
 
 const AdminRoute = () => {
   const { user, isLoading } = useAuth();
@@ -16,7 +17,7 @@ const AdminRoute = () => {
   }
 
   if (!user) {
-    return <Navigate to="/admin/login" replace state={{ from: location }} />;
+    return <Navigate to={ADMIN_ROUTES.LOGIN} replace state={{ from: location }} />;
   }
 
   if (user.role !== 'admin') {

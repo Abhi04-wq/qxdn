@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import Ledger from '../models/Ledger.js';
 import { deriveBalances, ledgerHistory } from '../services/balanceService.js';
 import { getPromotionalBalances } from '../services/promotionalService.js';
+import { releasePendingRewards } from '../workers/releaseWorker.js';
 
 // @route   GET /api/wallet/deposit-info
 // @desc    Member's permanent mock BEP-20 deposit address + network instructions
@@ -41,6 +42,15 @@ export const getDepositInfo = async (req, res, next) => {
 // @desc    Derived balances (deposits - staked) + rewards + released + ledger history
 export const getBalanceAndLedger = async (req, res, next) => {
   try {
+    // If today is Saturday (UTC day 6), auto-release any pending rewards
+    if (new Date().getUTCDay() === 6) {
+      try {
+        await releasePendingRewards('saturday-auto-sync');
+      } catch (syncErr) {
+        console.error('[AutoSync] Saturday release failed:', syncErr.message);
+      }
+    }
+
     const limit = Math.min(Number(req.query.limit) || 100, 500);
     const [balances, entries] = await Promise.all([
       deriveBalances(req.user.id),
@@ -60,6 +70,15 @@ export const getBalanceAndLedger = async (req, res, next) => {
 // @desc    Detailed income ledger entries with category breakdown & summary totals
 export const getIncomeLedger = async (req, res, next) => {
   try {
+    // If today is Saturday (UTC day 6), auto-release any pending rewards
+    if (new Date().getUTCDay() === 6) {
+      try {
+        await releasePendingRewards('saturday-auto-sync');
+      } catch (syncErr) {
+        console.error('[AutoSync] Saturday release failed:', syncErr.message);
+      }
+    }
+
     const limit = Math.min(Number(req.query.limit) || 500, 1000);
     const { category, currency, status } = req.query;
 

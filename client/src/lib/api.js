@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { ADMIN_ROUTES } from './adminConfig.js';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const TOKEN_KEY = 'qndx_token';
@@ -17,7 +18,7 @@ const clearSession = () => {
   localStorage.removeItem(USER_KEY);
 };
 
-const loginPathFor = () => (cachedRole() === 'admin' ? '/admin/login' : '/login');
+const loginPathFor = () => (cachedRole() === 'admin' ? ADMIN_ROUTES.LOGIN : '/login');
 
 const api = axios.create({ baseURL: API_URL });
 

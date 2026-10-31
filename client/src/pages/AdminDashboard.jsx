@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Coins, Users, Wallet, TrendingUp, Loader2, Copy, Check, KeyRound,
   Link2, UserCheck, ShieldAlert, MailCheck, MailX, ExternalLink, Database,
-  Lock, CheckCircle2, PauseCircle, Network, Layers, History,
+  Lock, CheckCircle2, PauseCircle, Network, Layers, History, LogIn,
 } from 'lucide-react';
 import api from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -12,6 +12,8 @@ import TeamTree from '../components/TeamTree.jsx';
 import AdminIncomeLedger from '../components/admin/AdminIncomeLedger.jsx';
 import AdminOverviewAnalytics from '../components/admin/AdminOverviewAnalytics.jsx';
 import AdminSupportDesk from '../components/admin/AdminSupportDesk.jsx';
+import MemberManagement from '../components/admin/MemberManagement.jsx';
+import { ADMIN_ROUTES } from '../lib/adminConfig.js';
 
 const TABS = ['overview', 'income-ledger', 'deposits', 'members', 'stakes', 'referrals', 'tree', 'support'];
 
@@ -48,7 +50,7 @@ const StatCard = ({ Icon, label, value, sub, currency = '' }) => (
 );
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
+  const { user, impersonateMember } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const tab = TABS.includes(searchParams.get('tab')) ? searchParams.get('tab') : 'overview';
@@ -64,6 +66,36 @@ const AdminDashboard = () => {
   const [treeLoading, setTreeLoading] = useState(false);
   const [releaseLogs, setReleaseLogs] = useState(null);
   const [treeError, setTreeError] = useState('');
+  const [impersonateLoading, setImpersonateLoading] = useState('');
+
+  const handleImpersonate = async (targetUserId, targetEmail, e) => {
+    if (e) e.stopPropagation();
+    try {
+      setImpersonateLoading(targetUserId);
+      const { data: res } = await api.post(`/api/admin/impersonate/${targetUserId}`);
+      if (res.success && res.data) {
+        impersonateMember(res.data);
+        setToast(`Opening full member dashboard for ${targetEmail}...`);
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setToast(err.response?.data?.message || 'Failed to impersonate member');
+    } finally {
+      setImpersonateLoading('');
+    }
+  };
+
+  const handleMemberUpdated = (targetUserId, updatedUser) => {
+    setData((prev) => {
+      if (!prev) return prev;
+      const updatedMembers = (prev.members || []).map((m) =>
+        (m.userId === targetUserId || m._id === targetUserId)
+          ? { ...m, ...updatedUser }
+          : m
+      );
+      return { ...prev, members: updatedMembers };
+    });
+  };
 
   const reloadData = useCallback(async () => {
     try {
@@ -209,64 +241,13 @@ const AdminDashboard = () => {
 
           {/* MEMBERS */}
           {tab === 'members' && (
-            <>
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold tracking-tight text-[#ECFDF5]">Members</h2>
-                <p className="mt-1 text-sm text-[#91A89E]">{totals.totalMembers} registered members</p>
-              </div>
-              <section className="overflow-hidden rounded-2xl border border-[#D4AF37]/35 bg-gradient-to-br from-[#10352C] via-[#10352C] to-[#0B2720] shadow-card-gold transition-all duration-300 hover:border-[#D4AF37]/60">
-                {data.members.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center px-6 py-14">
-                    <Users className="mb-4 h-10 w-10 text-[#1E493B]" />
-                    <p className="text-sm font-medium text-[#ECFDF5]">No members yet</p>
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                      <thead>
-                        <tr className="bg-[#0B2720]/80 text-[11px] uppercase tracking-wider text-[#91A89E]">
-                          <th className="px-6 py-3 font-medium">Email</th>
-                          <th className="px-6 py-3 font-medium">Referral Code</th>
-                          <th className="px-6 py-3 font-medium">Sponsor</th>
-                          <th className="px-6 py-3 font-medium">Deposited</th>
-                          <th className="px-6 py-3 font-medium">Available</th>
-                          <th className="px-6 py-3 font-medium">Email</th>
-                          <th className="px-6 py-3 font-medium">Joined</th>
-                          <th className="px-6 py-3 font-medium"> </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[#1E493B]">
-                        {data.members.map((m) => (
-                          <tr
-                            key={m.userId}
-                            onClick={() => navigate(`/admin/member/${m.userId}`)}
-                            className="cursor-pointer text-[#ECFDF5] transition hover:bg-[#164B3A]/40"
-                            title="Open member profile"
-                          >
-                            <td className="px-6 py-3 text-xs">{m.email}</td>
-                            <td className="px-6 py-3 font-mono text-xs text-[#34D399] font-bold">{m.referralCode}</td>
-                            <td className="px-6 py-3 font-mono text-xs text-[#A7C4B8]">{m.sponsorCode || 'Direct'}</td>
-                            <td className="px-6 py-3">{fmt(m.totalDeposited)} USDT</td>
-                            <td className="px-6 py-3 font-medium text-[#34D399]">{fmt(m.availableBalance)} USDT</td>
-                            <td className="px-6 py-3">
-                              {m.isEmailVerified ? (
-                                <span className="inline-flex items-center gap-1 rounded-full border border-[#34D399]/30 bg-[#34D399]/10 px-2 py-0.5 text-[10px] text-[#34D399]"><MailCheck className="h-3 w-3" />Verified</span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-2 py-0.5 text-[10px] text-[#F1D78A]"><MailX className="h-3 w-3" />Pending</span>
-                              )}
-                            </td>
-                            <td className="whitespace-nowrap px-6 py-3 text-xs text-[#91A89E]">{new Date(m.createdAt).toLocaleDateString()}</td>
-                            <td className="px-6 py-3">
-                              <ExternalLink className="h-3.5 w-3.5 text-[#91A89E]" />
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </section>
-            </>
+            <MemberManagement
+              members={data?.members || []}
+              onUpdateMember={handleMemberUpdated}
+              onImpersonate={handleImpersonate}
+              impersonateLoading={impersonateLoading}
+              onToast={(msg) => setToast(msg)}
+            />
           )}
 
           {/* ALL STAKES */}

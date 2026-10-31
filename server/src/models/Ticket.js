@@ -57,6 +57,8 @@ const ticketSchema = new mongoose.Schema(
         'REFERRAL_TREE',
         'SECURITY_2FA',
         'GENERAL_INQUIRY',
+        'ACCOUNT_SUSPENSION',
+        'APPEAL',
       ],
     },
     priority: {

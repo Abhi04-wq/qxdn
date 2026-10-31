@@ -76,15 +76,59 @@ export const AuthProvider = ({ children }) => {
   );
 
   const logout = useCallback(() => {
+    sessionStorage.removeItem('qndx_admin_backup_token');
+    sessionStorage.removeItem('qndx_admin_backup_user');
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     setUser(null);
     setToken(null);
   }, []);
 
+  // Admin Impersonation: Seamlessly login as member with full dashboard access
+  const impersonateMember = useCallback((memberData) => {
+    const currentToken = localStorage.getItem(TOKEN_KEY);
+    const currentUser = localStorage.getItem(USER_KEY);
+    if (currentToken && currentUser) {
+      sessionStorage.setItem('qndx_admin_backup_token', currentToken);
+      sessionStorage.setItem('qndx_admin_backup_user', currentUser);
+    }
+    return persist(memberData);
+  }, [persist]);
+
+  const exitImpersonation = useCallback(() => {
+    const adminToken = sessionStorage.getItem('qndx_admin_backup_token');
+    const adminUser = sessionStorage.getItem('qndx_admin_backup_user');
+    sessionStorage.removeItem('qndx_admin_backup_token');
+    sessionStorage.removeItem('qndx_admin_backup_user');
+
+    if (adminToken && adminUser) {
+      try {
+        const parsed = JSON.parse(adminUser);
+        return persist({ ...parsed, token: adminToken });
+      } catch {
+        // fallback
+      }
+    }
+    logout();
+  }, [persist, logout]);
+
+  const isImpersonating = useMemo(() => {
+    return Boolean(typeof window !== 'undefined' && sessionStorage.getItem('qndx_admin_backup_token'));
+  }, [user, token]);
+
   const value = useMemo(
-    () => ({ user, token, isLoading, loginMember, loginAdmin, logout }),
-    [user, token, isLoading, loginMember, loginAdmin, logout]
+    () => ({
+      user,
+      token,
+      isLoading,
+      loginMember,
+      loginAdmin,
+      logout,
+      impersonateMember,
+      exitImpersonation,
+      isImpersonating,
+    }),
+    [user, token, isLoading, loginMember, loginAdmin, logout, impersonateMember, exitImpersonation, isImpersonating]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

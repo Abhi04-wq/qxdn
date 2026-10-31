@@ -122,7 +122,7 @@ const Register = () => {
           </p>
           <Link
             to="/login"
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gold-gradient py-2.5 text-sm font-bold text-[#071C18] transition hover:brightness-110 hover:shadow-[0_0_25px_rgba(212,175,55,0.35)]"
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#10B981] via-[#059669] to-[#047857] py-2.5 text-sm font-bold text-white shadow-[0_0_20px_rgba(52,211,153,0.35)] transition-all hover:brightness-110 hover:shadow-[0_0_30px_rgba(52,211,153,0.55)]"
           >
             Go to Member Login
             <ArrowRight className="h-4 w-4" />
@@ -174,12 +174,12 @@ const Register = () => {
             <button
               type="submit"
               disabled={otpLoading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gold-gradient py-2.5 text-sm font-bold text-[#071C18] transition hover:brightness-110 hover:shadow-[0_0_25px_rgba(212,175,55,0.35)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#10B981] via-[#059669] to-[#047857] py-2.5 text-sm font-bold text-white shadow-[0_0_20px_rgba(52,211,153,0.35)] transition-all hover:brightness-110 hover:shadow-[0_0_30px_rgba(52,211,153,0.55)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {otpLoading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin text-[#071C18]" />
-                  Verifying...
+                  <Loader2 className="h-4 w-4 animate-spin text-white" />
+                  <span>Verifying...</span>
                 </>
               ) : (
                 'Verify Email'
@@ -283,16 +283,20 @@ const Register = () => {
               {errors.sponsorCode && <p className="mt-1.5 text-xs text-red-400">{errors.sponsorCode}</p>}
             </div>
 
-            <button type="submit" disabled={submitting} className="flex w-full items-center justify-center gap-2 rounded-xl bg-gold-gradient py-2.5 text-sm font-bold text-[#071C18] transition hover:brightness-110 hover:shadow-[0_0_25px_rgba(212,175,55,0.35)] disabled:cursor-not-allowed disabled:opacity-60">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#10B981] via-[#059669] to-[#047857] py-2.5 text-sm font-bold text-white shadow-[0_0_20px_rgba(52,211,153,0.35)] transition-all hover:brightness-110 hover:shadow-[0_0_30px_rgba(52,211,153,0.55)] disabled:cursor-not-allowed disabled:opacity-60"
+            >
               {submitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin text-[#071C18]" />
-                  Creating account...
+                  <Loader2 className="h-4 w-4 animate-spin text-white" />
+                  <span>Creating account...</span>
                 </>
               ) : (
                 <>
-                  <UserPlus className="h-4 w-4" />
-                  Create Account
+                  <UserPlus className="h-4 w-4 text-white" />
+                  <span>Create Account</span>
                 </>
               )}
             </button>

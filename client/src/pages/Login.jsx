@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader2, Lock, Mail, AlertCircle, Coins, LogIn, KeyRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import ResetPasswordModal from '../components/ResetPasswordModal.jsx';
+import Toast from '../components/Toast.jsx';
 
 const Login = () => {
   const { loginMember } = useAuth();
@@ -12,6 +14,8 @@ const Login = () => {
   const [serverError, setServerError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [toast, setToast] = useState('');
 
   const validate = () => {
     const next = {};
@@ -95,7 +99,16 @@ const Login = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-[#ECFDF5]">Password</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label htmlFor="password" className="text-sm font-medium text-[#ECFDF5]">Password</label>
+                <button
+                  type="button"
+                  onClick={() => setForgotOpen(true)}
+                  className="text-xs font-semibold text-[#34D399] hover:text-[#6EE7B7] transition"
+                >
+                  Forgot password?
+                </button>
+              </div>
               <div className="relative">
                 <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#91A89E]" />
                 <input id="password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="••••••••" value={form.password} onChange={handleChange} className={`${field(errors.password)} pr-10`} />
@@ -106,16 +119,20 @@ const Login = () => {
               {errors.password && <p className="mt-1.5 text-xs text-red-400">{errors.password}</p>}
             </div>
 
-            <button type="submit" disabled={submitting} className="flex w-full items-center justify-center gap-2 rounded-xl bg-gold-gradient py-2.5 text-sm font-bold text-[#071C18] transition hover:brightness-110 hover:shadow-[0_0_25px_rgba(212,175,55,0.35)] disabled:cursor-not-allowed disabled:opacity-60">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#10B981] via-[#059669] to-[#047857] py-2.5 text-sm font-bold text-white shadow-[0_0_20px_rgba(52,211,153,0.35)] transition-all hover:brightness-110 hover:shadow-[0_0_30px_rgba(52,211,153,0.55)] disabled:cursor-not-allowed disabled:opacity-60"
+            >
               {submitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin text-[#071C18]" />
-                  Signing in...
+                  <Loader2 className="h-4 w-4 animate-spin text-white" />
+                  <span>Signing in...</span>
                 </>
               ) : (
                 <>
-                  <LogIn className="h-4 w-4" />
-                  Sign In
+                  <LogIn className="h-4 w-4 text-white" />
+                  <span>Sign In</span>
                 </>
               )}
             </button>
@@ -133,11 +150,22 @@ const Login = () => {
               Register with sponsor ID
             </Link>
           </p>
-          <p className="mt-2 text-center text-xs text-[#91A89E]">
-            Admin? <Link to="/admin/login" className="text-[#A7C4B8] hover:text-[#34D399]">Admin portal</Link>
-          </p>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      <ResetPasswordModal
+        isOpen={forgotOpen}
+        onClose={() => setForgotOpen(false)}
+        initialEmail={form.email}
+        isAuthenticated={false}
+        onSuccess={(msg) => {
+          setToast(msg);
+          setForgotOpen(false);
+        }}
+      />
+
+      <Toast message={toast} onClose={() => setToast('')} />
     </div>
   );
 };

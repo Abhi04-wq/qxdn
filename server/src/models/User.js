@@ -23,6 +23,25 @@ const userSchema = new mongoose.Schema(
       enum: ['admin', 'member'],
       default: 'member',
     },
+    status: {
+      type: String,
+      enum: ['ACTIVE', 'SUSPENDED', 'BANNED'],
+      default: 'ACTIVE',
+      index: true,
+    },
+    banReason: {
+      type: String,
+      default: null,
+    },
+    bannedAt: {
+      type: Date,
+      default: null,
+    },
+    bannedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
     referralCode: {
       type: String,
       unique: true,
@@ -48,6 +67,14 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    resetPasswordOtp: {
+      type: String,
+      default: null,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -56,6 +83,8 @@ const userSchema = new mongoose.Schema(
         delete ret.password;
         delete ret.emailVerificationToken;
         delete ret.emailVerificationExpires;
+        delete ret.resetPasswordOtp;
+        delete ret.resetPasswordExpires;
         delete ret.__v;
         return ret;
       },

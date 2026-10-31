@@ -30,6 +30,16 @@ export const createStake = async (req, res, next) => {
       return res.status(400).json({ success: false, message: `Minimum stake is ${MIN_STAKE} USDT` });
     }
 
+    // Security & Moderation Status Guard
+    const user = await User.findById(req.user.id).select('status banReason');
+    if (user && (user.status === 'BANNED' || user.status === 'SUSPENDED')) {
+      return res.status(403).json({
+        success: false,
+        code: 'ACCOUNT_BANNED',
+        message: 'Your account has been suspended due to protocol policy violations. Contact support for assistance.',
+      });
+    }
+
     // Core rule: available balance is derived dynamically from the append-only ledger,
     // never read from a stored column.
     const balances = await deriveBalances(req.user.id);
