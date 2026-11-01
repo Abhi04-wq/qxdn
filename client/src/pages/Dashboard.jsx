@@ -365,7 +365,7 @@ export default function Dashboard() {
       <Toast message={toast} onClose={() => setToast('')} />
 
       {/* ================= 5.A. WELCOME HEADER ================= */}
-      <section className="relative overflow-hidden rounded-3xl border border-[#1E493B] bg-gradient-to-br from-[#0B2720]/95 via-[#071C18]/90 to-[#020B08] p-6 sm:p-8 backdrop-blur-2xl shadow-2xl">
+      <section className="relative overflow-hidden rounded-3xl border border-[#1E493B] bg-gradient-to-br from-[#0B2720]/95 via-[#071C18]/90 to-[#06241D] p-6 sm:p-8 backdrop-blur-2xl shadow-[0_12px_35px_rgba(6,36,29,0.85)]">
         {/* Subtle Ambient Emerald Radial Glow */}
         <div className="pointer-events-none absolute -top-12 -left-12 h-64 w-64 rounded-full bg-[#34D399]/15 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-12 right-0 h-64 w-64 rounded-full bg-[#D4AF37]/10 blur-3xl" />
@@ -526,7 +526,7 @@ export default function Dashboard() {
         {/* ================= LEFT / CENTER 8-COLUMN MAIN ANALYTICS ================= */}
         <div className="lg:col-span-8 space-y-6">
           {/* ================= 5.C. MAIN ANALYTICS: STAKING PERFORMANCE ================= */}
-          <div className="rounded-3xl border border-[#1E493B] bg-gradient-to-br from-[#0B2720]/95 via-[#071C18]/90 to-[#020B08] p-6 backdrop-blur-2xl shadow-2xl">
+          <div className="rounded-3xl border border-[#1E493B] bg-gradient-to-br from-[#0B2720]/95 via-[#071C18]/90 to-[#06241D] p-6 backdrop-blur-2xl shadow-[0_12px_35px_rgba(6,36,29,0.85)]">
             {/* Header: Title & Timeframe Selector */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#1E493B]/70">
               <div>
@@ -592,7 +592,7 @@ export default function Dashboard() {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload;
                         return (
-                          <div className="rounded-2xl border border-[#34D399]/50 bg-[#0B2720]/95 p-3.5 shadow-2xl backdrop-blur-2xl font-mono text-xs">
+                          <div className="rounded-2xl border border-[#34D399]/50 bg-[#0B2720]/95 p-3.5 shadow-[0_12px_35px_rgba(6,36,29,0.85)] backdrop-blur-2xl font-mono text-xs">
                             <p className="text-[11px] font-bold text-[#A7B8AE]">{data.fullDate}</p>
                             <div className="mt-2 space-y-1">
                               <p className="flex items-center justify-between gap-4 text-white">
@@ -667,7 +667,7 @@ export default function Dashboard() {
           </div>
 
           {/* ================= 5.F. MY ACTIVE STAKING POSITIONS ================= */}
-          <div className="rounded-3xl border border-[#1E493B] bg-gradient-to-br from-[#0B2720]/95 via-[#071C18]/90 to-[#020B08] p-6 backdrop-blur-2xl shadow-2xl">
+          <div className="rounded-3xl border border-[#1E493B] bg-gradient-to-br from-[#0B2720]/95 via-[#071C18]/90 to-[#06241D] p-6 backdrop-blur-2xl shadow-[0_12px_35px_rgba(6,36,29,0.85)]">
             <div className="flex items-center justify-between pb-4 border-b border-[#1E493B]/70">
               <div className="flex items-center gap-2">
                 <Layers className="h-5 w-5 text-[#34D399]" />
@@ -778,7 +778,7 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-[#D4AF37]/40 bg-gradient-to-br from-[#10352C] via-[#071C18] to-[#020B08] p-4 transition hover:border-[#D4AF37]">
+                  <div className="rounded-2xl border border-[#D4AF37]/40 bg-gradient-to-br from-[#10352C] via-[#071C18] to-[#06241D] p-4 transition hover:border-[#D4AF37]">
                     <div className="flex items-start justify-between">
                       <div>
                         <span className="inline-block rounded-lg border border-[#D4AF37]/40 bg-[#D4AF37]/15 px-2 py-0.5 text-[10px] font-mono font-bold text-[#F5D98E]">
@@ -812,7 +812,7 @@ export default function Dashboard() {
           </div>
 
           {/* ================= 5.E. RECENT TRANSACTIONS TABLE ================= */}
-          <div className="rounded-3xl border border-[#1E493B] bg-gradient-to-br from-[#0B2720]/95 via-[#071C18]/90 to-[#020B08] p-6 backdrop-blur-2xl shadow-2xl">
+          <div className="rounded-3xl border border-[#1E493B] bg-gradient-to-br from-[#0B2720]/95 via-[#071C18]/90 to-[#06241D] p-6 backdrop-blur-2xl shadow-[0_12px_35px_rgba(6,36,29,0.85)]">
             {/* Table Header Controls */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#1E493B]/70">
               <div>
@@ -980,7 +980,7 @@ export default function Dashboard() {
         {/* (Matches Screenshot Right Column: Network Overview + Reward Distribution + Saturday Countdown) */}
         <div className="lg:col-span-4 space-y-6">
           {/* Panel 1: Network Overview */}
-          <div className="rounded-3xl border border-[#1E493B] bg-gradient-to-br from-[#0B2720]/95 via-[#071C18]/90 to-[#020B08] p-5 backdrop-blur-2xl shadow-2xl">
+          <div className="rounded-3xl border border-[#1E493B] bg-gradient-to-br from-[#0B2720]/95 via-[#071C18]/90 to-[#06241D] p-5 backdrop-blur-2xl shadow-[0_12px_35px_rgba(6,36,29,0.85)]">
             <div className="flex items-center justify-between pb-3 border-b border-[#1E493B]/70">
               <span className="text-sm font-bold font-mono text-white flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-[#34D399]" />
@@ -1016,7 +1016,7 @@ export default function Dashboard() {
           </div>
 
           {/* Panel 2: Reward Distribution (Recharts BarChart matching screenshot) */}
-          <div className="rounded-3xl border border-[#1E493B] bg-gradient-to-br from-[#0B2720]/95 via-[#071C18]/90 to-[#020B08] p-5 backdrop-blur-2xl shadow-2xl">
+          <div className="rounded-3xl border border-[#1E493B] bg-gradient-to-br from-[#0B2720]/95 via-[#071C18]/90 to-[#06241D] p-5 backdrop-blur-2xl shadow-[0_12px_35px_rgba(6,36,29,0.85)]">
             <div className="flex items-center justify-between pb-3 border-b border-[#1E493B]/70">
               <span className="text-sm font-bold font-mono text-white flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-[#D4AF37]" />
